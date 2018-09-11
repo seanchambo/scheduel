@@ -17,7 +17,7 @@ const styles = {
   }
 }
 
-class SchedulerPanel extends React.Component<SchedulerPanelProps> {
+class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
   render() {
     const { resources, viewConfig } = this.props;
 

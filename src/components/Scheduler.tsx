@@ -13,7 +13,7 @@ interface SchedulerProps {
   viewConfig: ViewConfig,
 }
 
-class Scheduler extends React.Component<SchedulerProps> {
+class Scheduler extends React.PureComponent<SchedulerProps> {
   public render() {
     return (
       <DragDropContextProvider backend={HTML5Backend}>

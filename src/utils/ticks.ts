@@ -1,14 +1,13 @@
-import { TimeAxisRowConfig, Tick, MinorTimeAxisRowConfig } from "../../index";
-import { addUnitToDate } from './date';
+import { TimeAxisRowConfig, Tick, MinorTimeAxisRowConfig, TimeAxisConfig, TicksConfig } from "../../index";
+import { addUnit } from './date';
 
 export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeAxisRowConfig): Tick[] => {
   const result: Tick[] = []
 
   while (true) {
-    const nextStart = addUnitToDate(start, timeAxisRowConfig.increment, timeAxisRowConfig.unit);
+    const nextStart = addUnit(start, timeAxisRowConfig.increment, timeAxisRowConfig.unit);
 
     if (nextStart.getTime() >= end.getTime()) {
-      const incrementInMs = end.getTime() - start.getTime();
       const show = nextStart.getTime() === end.getTime();
 
       result.push({
@@ -41,7 +40,7 @@ export const getMajorTickWidth = (tick: Tick, minorTimeAxisConfig: MinorTimeAxis
   const { increment: minorIncrement, width: minorWidth, unit: minorUnit } = minorTimeAxisConfig;
 
   while (true) {
-    const nextStart = addUnitToDate(start, minorIncrement, minorUnit);
+    const nextStart = addUnit(start, minorIncrement, minorUnit);
 
     if (nextStart >= end) {
       const remaining = end.getTime() - start.getTime();
@@ -53,4 +52,14 @@ export const getMajorTickWidth = (tick: Tick, minorTimeAxisConfig: MinorTimeAxis
     width += minorWidth;
     start = new Date(nextStart);
   }
+}
+
+export const getTicksConfig = (start: Date, end: Date, timeAxisConfig: TimeAxisConfig): TicksConfig => {
+  const majorTicks = getTicksInRange(start, end, timeAxisConfig.major);
+  const minorTicks = getTicksInRange(start, end, timeAxisConfig.minor);
+
+  minorTicks.forEach(tick => tick.width = timeAxisConfig.minor.width);
+  majorTicks.forEach(tick => tick.width = getMajorTickWidth(tick, timeAxisConfig.minor));
+
+  return { major: majorTicks, minor: minorTicks };
 }

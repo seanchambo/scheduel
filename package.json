@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "React Resource Scheduler",
   "main": "./dist/index",
-  "typings": "./dist/index",
+  "typings": "./index.d.ts",
   "files": [
     "dist"
   ],
@@ -33,28 +33,8 @@
     "typescript": "^2.9.2"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest -c .jestrc.json",
     "build": "rm -rf dist lib && tsc && rollup -c"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "/test/sample\\.test.ts",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "collectCoverage": false,
-    "collectCoverageFrom": [
-      "src/**/*.ts"
-    ],
-    "testEnvironment": "node",
-    "verbose": true
   },
   "dependencies": {
     "react-dnd": "^5.0.0",
