@@ -1,10 +1,13 @@
 import * as React from 'react';
 
-import { Resource, ViewConfig } from '../../index';
+import { Resource, ViewConfig, DragContext, ResourceHeightsMap, ResourceElementMap } from '../../index';
 
 interface ResourceStreamProps {
-  resources: Resource[],
-  viewConfig: ViewConfig
+  resources: Resource[];
+  viewConfig: ViewConfig;
+  dragContext: DragContext;
+  resourceHeights: ResourceHeightsMap;
+  resourceElements: ResourceElementMap;
 };
 
 const styles = {
@@ -30,10 +33,9 @@ const styles = {
 
 class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   render() {
-    const { resourceAxis, timeAxis } = this.props.viewConfig;
+    const { viewConfig: { resourceAxis, timeAxis }, resourceHeights, resources } = this.props;
     const rootStyle = { ...styles.root, width: resourceAxis.width };
     const headerStyle = { ...styles.row, height: timeAxis.major.height + timeAxis.minor.height };
-    const rowStyle = { ...styles.row, flex: 1, height: resourceAxis.height };
 
     return (
       <div style={rootStyle}>
@@ -48,7 +50,9 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
 
         </div>
         <div style={styles.body}>
-          {this.props.resources.map((resource) => {
+          {resources.map((resource) => {
+            const rowStyle = { ...styles.row, flex: 1, height: resourceHeights.get(resource) }
+
             return (
               <div key={resource.id} style={rowStyle}>
                 {resourceAxis.columns.map((column) => {

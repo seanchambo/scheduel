@@ -119,7 +119,7 @@ const viewConfig = {
   timeAxis: {
     major: {
       height: 42,
-      increment: 2,
+      increment: 1,
       renderer: (tick: Tick) =>
         <div
           key={tick.startTime.getTime()}
@@ -137,12 +137,12 @@ const viewConfig = {
           style={{ ...styles.timeAxis.root, width: tick.width }}>
           <span style={styles.timeAxis.cell}>{format(tick.startTime, 'YY')}</span>
         </div>,
-      unit: 'years' as 'years',
+      unit: 'months' as 'months',
       width: 100,
     },
   },
   timeSpan: {
-    duration: 10,
+    duration: 2,
     startTime: new Date(2018, 8, 1, 0, 0, 0, 0),
     unit: 'years' as 'years'
   },
@@ -175,7 +175,7 @@ const events: Event[] = [{
   },
   endTime: new Date(2018, 8, 5, 0, 0, 0, 0),
   id: 1,
-  startTime: new Date(2018, 8, 4, 0, 0, 0, 0),
+  startTime: new Date(2017, 9, 4, 0, 0, 0, 0),
 }, {
   data: {
     name: 'Do Dishes'

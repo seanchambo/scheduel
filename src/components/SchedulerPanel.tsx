@@ -1,8 +1,11 @@
 import * as React from 'react';
 
 import { Assignment, Resource, Event, ViewConfig } from '../../index';
-import Timeline from './Timeline';
 import ResourceStream from './ResourceStream';
+import ViewDataProvider from './ViewDataProvider';
+import DragContextProvider from './DragContextProvider';
+import TimeHeader from './TimeHeader';
+import ResourceTimeStream from './ResourceTimeStream';
 
 interface SchedulerPanelProps {
   assignments: Assignment[],
@@ -14,18 +17,52 @@ interface SchedulerPanelProps {
 const styles = {
   root: {
     display: 'flex',
+  },
+  timeline: {
+    overflowX: 'scroll' as 'scroll',
   }
 }
 
 class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
   render() {
-    const { resources, viewConfig } = this.props;
+    const { resources, events, assignments, viewConfig } = this.props;
 
     return (
-      <div style={styles.root}>
-        <ResourceStream resources={resources} viewConfig={viewConfig} />
-        <Timeline {...this.props} />
-      </div>
+      <ViewDataProvider viewConfig={viewConfig} resources={resources} events={events} assignments={assignments}>
+        {({ start, end, ticksConfig, resourceElements, resourceHeights }) => {
+          if (!start) return null;
+
+          return (
+            <DragContextProvider resources={resources} events={events} assignments={assignments}>
+              {(dragContext) => {
+                return (
+                  <div style={styles.root}>
+                    <ResourceStream
+                      resources={resources}
+                      viewConfig={viewConfig}
+                      dragContext={dragContext}
+                      resourceElements={resourceElements}
+                      resourceHeights={resourceHeights} />
+                    <div style={styles.timeline}>
+                      <TimeHeader
+                        ticksConfig={ticksConfig}
+                        timeAxisConfig={viewConfig.timeAxis} />
+                      <ResourceTimeStream
+                        {...this.props}
+                        start={start}
+                        end={end}
+                        resourceHeights={resourceHeights}
+                        resourceElements={resourceElements}
+                        ticksConfig={ticksConfig}
+                        dragContext={dragContext} />
+                    </div>
+                  </div>
+                )
+              }}
+            </DragContextProvider>
+          )
+        }}
+      </ViewDataProvider>
     );
   }
 }

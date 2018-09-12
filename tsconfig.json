@@ -6,7 +6,8 @@
     "declaration": true,
     "types": [
       "node",
-      "jest"
+      "jest",
+      "react-dom"
     ],
     "jsx": "react",
     "typeRoots": [

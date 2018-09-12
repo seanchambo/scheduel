@@ -1,11 +1,9 @@
 import * as React from 'react';
-import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { ViewConfig, TicksConfig, Assignment, Resource, Event, EventDomDetails } from '../../index';
+import { ViewConfig, TicksConfig, Assignment, Resource, Event, AssignmentElement, DragContext, ResourceElementMap, ResourceHeightsMap } from '../../index';
 
 import ResourceTimeline from './ResourceTimeline';
 import TickStream from './TickStream';
-import { getCoordinatesForTimeSpan } from '../utils/dom';
 
 interface ResourceTimelineStreamProps {
   ticksConfig: TicksConfig;
@@ -13,6 +11,9 @@ interface ResourceTimelineStreamProps {
   resources: Resource[];
   events: Event[];
   viewConfig: ViewConfig;
+  dragContext: DragContext;
+  resourceElements: ResourceElementMap;
+  resourceHeights: ResourceHeightsMap;
   start: Date;
   end: Date;
 }
@@ -28,42 +29,15 @@ const styles = {
 
 class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamProps> {
   render() {
-    const { resources, ticksConfig, viewConfig, events, assignments, start, end } = this.props;
+    const { resources, ticksConfig, viewConfig, resourceElements, resourceHeights, dragContext } = this.props;
+
+    const minHeight = Array.from(resourceHeights.values()).reduce((acc, height) => acc + height, 0);
 
     const style = {
       ...styles.root,
       width: ticksConfig.minor.length * viewConfig.timeAxis.minor.width,
-      minHeight: resources.length * viewConfig.resourceAxis.height
+      minHeight,
     };
-
-    const eventsMap: { [key: string]: EventDomDetails } = events.reduce((acc, event) => {
-      if (areRangesOverlapping(event.startTime, event.endTime, start, end)) {
-        const coordinates = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
-
-        if (coordinates) {
-          return { ...acc, [event.id]: { ...coordinates, event } };
-        }
-
-        return acc;
-      }
-      return acc;
-    }, {});
-
-    const resourceEvents = new Map<string | number, EventDomDetails[]>();
-
-    assignments.forEach((assignment) => {
-      let currentResourceEvents = resourceEvents.get(assignment.resourceId);
-
-      if (!currentResourceEvents) {
-        currentResourceEvents = [];
-        resourceEvents.set(assignment.resourceId, currentResourceEvents);
-      }
-
-      if (Object.keys(eventsMap).includes(assignment.eventId.toString())) {
-        currentResourceEvents.push(eventsMap[assignment.eventId]);
-      }
-    });
-
 
     return (
       <div style={style}>
@@ -72,9 +46,10 @@ class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamP
           <ResourceTimeline
             key={resource.id}
             resource={resource}
-            events={resourceEvents.get(resource.id) || []}
+            elements={resourceElements.get(resource)}
             viewConfig={viewConfig}
-            ticksConfig={ticksConfig} />
+            ticksConfig={ticksConfig}
+            dragContext={dragContext} />
         )}
       </div>
     )

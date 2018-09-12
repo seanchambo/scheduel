@@ -1,4 +1,6 @@
-import { Tick } from '../../index';
+import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
+
+import { Tick, ViewConfig, ResourceHeightsMap, ResourceElementMap, Event, Resource, Assignment, AssignmentElement, TicksConfig } from '../../index';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -41,6 +43,103 @@ export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[],
   }
 
   return { startX, endX };
+}
+
+interface ResourceEventItem {
+  date: Date;
+  type: 'start' | 'end';
+  assignmentElement: AssignmentElement;
+  matching?: ResourceEventItem;
+};
+
+export const getResourceElementsAndHeights = (
+  events: Event[],
+  resources: Resource[],
+  assignments: Assignment[],
+  viewConfig: ViewConfig,
+  ticksConfig: TicksConfig,
+  start: Date,
+  end: Date,
+): { resourceHeights: ResourceHeightsMap, resourceElements: ResourceElementMap } => {
+  const eventMap: { [key: string]: Event } = {};
+  const resourceMap: { [key: string]: Resource } = {};
+  const resourceEventsMap: { [key: string]: ResourceEventItem[] } = {};
+
+  const resourceHeights: ResourceHeightsMap = new Map<Resource, number>();
+  const resourceElements: ResourceElementMap = new Map<Resource, AssignmentElement[]>();
+
+  for (const resource of resources) {
+    resourceMap[resource.id] = resource;
+    resourceEventsMap[resource.id] = [];
+    resourceElements.set(resource, []);
+  }
+
+  for (const event of events) {
+    if (areRangesOverlapping(event.startTime, event.endTime, start, end)) {
+      eventMap[event.id] = event;
+    }
+  }
+
+  for (const assignment of assignments) {
+    const event = eventMap[assignment.eventId];
+    if (!event) { continue; }
+
+    const resource = resourceMap[assignment.resourceId];
+
+    const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
+
+    const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment };
+
+    const startEvent: ResourceEventItem = { date: new Date(event.startTime), type: 'start' as 'start', assignmentElement };
+    const endEvent: ResourceEventItem = { date: new Date(event.endTime), type: 'end' as 'end', assignmentElement }
+    startEvent.matching = endEvent;
+    endEvent.matching = startEvent;
+
+    resourceEventsMap[resource.id].push(startEvent);
+    resourceEventsMap[resource.id].push(endEvent);
+
+    resourceElements.get(resource).push(assignmentElement);
+  }
+
+  for (const resource of resources) {
+    const resourceEvents = resourceEventsMap[resource.id];
+
+    resourceEvents.sort((a, b) => {
+      const aMs = a.date.getTime();
+      const bMs = b.date.getTime();
+
+      if (aMs === bMs) {
+        if (a.type === b.type) {
+          return a.matching.date.getTime() - b.matching.date.getTime();
+        }
+        if (a.type === 'start' && b.type === 'end') {
+          return 1;
+        }
+        if (a.type === 'end' && b.type === 'start') {
+          return -1;
+        }
+      }
+
+      return aMs - bMs;
+    });
+
+    let currentDepth = 0;
+    let maxDepth = 0;
+
+    for (const resourceEvent of resourceEvents) {
+      if (resourceEvent.type === 'start') {
+        resourceEvent.assignmentElement.top = currentDepth * viewConfig.resourceAxis.height;
+        currentDepth += 1;
+        if (currentDepth > maxDepth) { maxDepth = currentDepth };
+      } else {
+        currentDepth -= 1;
+      }
+    }
+
+    resourceHeights.set(resource, (maxDepth + 1) * viewConfig.resourceAxis.height);
+  }
+
+  return { resourceElements, resourceHeights };
 }
 
 // // Returns -1 if distance cant be found

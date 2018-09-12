@@ -9,12 +9,28 @@ export declare interface Event {
   data?: { [key: string]: any };
 }
 
-export declare interface EventDomDetails {
-  startX: number;
-  endX: number;
-  event: Event;
+export declare interface DragContext {
+  dragging: boolean;
+  draggedEvent: Event;
+  hoveredResource: Resource;
+  originalResource: Resource;
+  initialiseContext: (event: Event, resource: Resource) => void;
+  updateContext: (resource: Resource) => void;
+  cleanupContext: () => void
 }
 
+export declare type ResourceElementMap = Map<Resource, AssignmentElement[]>;
+export declare type ResourceHeightsMap = Map<Resource, number>;
+
+export declare interface AssignmentElement {
+  startX: number;
+  endX: number;
+  top: number;
+  event: Event;
+  assignment: Assignment;
+}
+
+// TODO: AssignmentId??
 export declare interface Assignment {
   resourceId: number | string;
   eventId: number | string;

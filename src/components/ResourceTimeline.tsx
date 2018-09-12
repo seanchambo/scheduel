@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import { Resource, TicksConfig, ViewConfig, EventDomDetails } from '../../index';
+import { Resource, TicksConfig, ViewConfig, AssignmentElement, DragContext } from '../../index';
 
 interface ResourceTimelineProps {
   resource: Resource;
-  events: EventDomDetails[];
+  elements: AssignmentElement[];
   ticksConfig: TicksConfig;
   viewConfig: ViewConfig;
+  dragContext: DragContext;
 }
 
 const styles = {
@@ -27,14 +28,17 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   render() {
     return (
       <div style={styles.root}>
-        {this.props.events.map((eventDomDetails) => {
+        {this.props.elements.map((element) => {
           const style = {
             ...styles.event,
-            left: eventDomDetails.startX,
-            width: eventDomDetails.endX - eventDomDetails.startX,
+            left: element.startX,
+            width: element.endX - element.startX,
+            top: element.top,
+            height: this.props.viewConfig.resourceAxis.height,
           };
 
-          return <div key={eventDomDetails.event.id} style={style}>{this.props.viewConfig.events.renderer(eventDomDetails.event)}</div>
+          // TODO: Make based on assignment
+          return <div key={element.event.id} style={style}>{this.props.viewConfig.events.renderer(element.event)}</div>
         })}
       </div>
     )
