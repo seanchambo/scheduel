@@ -124,9 +124,9 @@ const viewConfig = {
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
-          <span>{format(tick.startTime, 'YYYY')}</span>
+          <span>{format(tick.startTime, 'DD')}</span>
         </div >,
-      unit: 'years' as 'years',
+      unit: 'weeks' as 'weeks',
     },
     minor: {
       height: 42,
@@ -135,16 +135,16 @@ const viewConfig = {
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
-          <span style={styles.timeAxis.cell}>{format(tick.startTime, 'YY')}</span>
+          <span style={styles.timeAxis.cell}>{format(tick.startTime, 'DD')}</span>
         </div>,
-      unit: 'months' as 'months',
+      unit: 'days' as 'days',
       width: 100,
     },
   },
   timeSpan: {
-    duration: 2,
+    duration: 1,
     startTime: new Date(2018, 8, 1, 0, 0, 0, 0),
-    unit: 'years' as 'years'
+    unit: 'months' as 'months'
   },
 }
 
@@ -167,29 +167,39 @@ const assignments: Assignment[] = [{
 }, {
   eventId: 3,
   resourceId: 2,
+}, {
+  eventId: 4,
+  resourceId: 1,
 }];
 
 const events: Event[] = [{
+  id: 1,
+  startTime: new Date(2017, 9, 4, 0, 0, 0, 0),
+  endTime: new Date(2018, 8, 5, 0, 0, 0, 0),
   data: {
     name: 'Make Tea'
   },
-  endTime: new Date(2018, 8, 5, 0, 0, 0, 0),
-  id: 1,
-  startTime: new Date(2017, 9, 4, 0, 0, 0, 0),
 }, {
+  id: 2,
+  startTime: new Date(2018, 8, 4, 0, 10, 0, 0),
+  endTime: new Date(2018, 8, 5, 12, 30, 40, 1),
   data: {
     name: 'Do Dishes'
   },
-  endTime: new Date(2018, 8, 5, 12, 30, 40, 1),
-  id: 2,
-  startTime: new Date(2018, 8, 5, 0, 10, 0, 0),
 }, {
+  id: 4,
+  startTime: new Date(2018, 8, 5, 0, 10, 0, 0),
+  endTime: new Date(2018, 8, 5, 12, 30, 40, 1),
+  data: {
+    name: 'Make Bed'
+  },
+}, {
+  id: 3,
+  startTime: new Date(2018, 8, 10, 22, 0, 0, 0),
+  endTime: new Date(2018, 8, 11, 7, 30, 0, 0),
   data: {
     name: 'Go to bed'
   },
-  endTime: new Date(2018, 8, 11, 7, 30, 0, 0),
-  id: 3,
-  startTime: new Date(2018, 8, 10, 22, 0, 0, 0),
 }]
 
 class App extends React.Component {

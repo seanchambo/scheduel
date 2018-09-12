@@ -8,6 +8,7 @@ interface ResourceTimelineProps {
   ticksConfig: TicksConfig;
   viewConfig: ViewConfig;
   dragContext: DragContext;
+  height: number;
 }
 
 const styles = {
@@ -26,8 +27,10 @@ const styles = {
 
 class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   render() {
+    const rootStyle = { ...styles.root, height: this.props.height };
+
     return (
-      <div style={styles.root}>
+      <div style={rootStyle}>
         {this.props.elements.map((element) => {
           const style = {
             ...styles.event,

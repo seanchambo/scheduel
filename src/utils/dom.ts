@@ -123,20 +123,25 @@ export const getResourceElementsAndHeights = (
       return aMs - bMs;
     });
 
-    let currentDepth = 0;
-    let maxDepth = 0;
+    let currentDepth = -1;
+    let maxDepth = -1;
 
-    for (const resourceEvent of resourceEvents) {
+    for (let i = 0; i < resourceEvents.length; i++) {
+      const resourceEvent = resourceEvents[i];
+
       if (resourceEvent.type === 'start') {
+        if (!resourceEvents[i - 1] || resourceEvents[i - 1].type === 'start') {
+          currentDepth += 1;
+          if (currentDepth > maxDepth) {
+            maxDepth = currentDepth
+          }
+        }
         resourceEvent.assignmentElement.top = currentDepth * viewConfig.resourceAxis.height;
-        currentDepth += 1;
-        if (currentDepth > maxDepth) { maxDepth = currentDepth };
       } else {
         currentDepth -= 1;
       }
+      resourceHeights.set(resource, (maxDepth + 1) * viewConfig.resourceAxis.height);
     }
-
-    resourceHeights.set(resource, (maxDepth + 1) * viewConfig.resourceAxis.height);
   }
 
   return { resourceElements, resourceHeights };

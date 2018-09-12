@@ -47,6 +47,7 @@ class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamP
             key={resource.id}
             resource={resource}
             elements={resourceElements.get(resource)}
+            height={resourceHeights.get(resource)}
             viewConfig={viewConfig}
             ticksConfig={ticksConfig}
             dragContext={dragContext} />
