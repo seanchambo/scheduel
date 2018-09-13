@@ -69,6 +69,7 @@ export const getResourceElementsAndHeights = (
   const resourceElements: ResourceElementMap = new Map<Resource, AssignmentElement[]>();
 
   const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+  let accumTop: number = 0;
 
   for (const resource of resources) {
     resourceMap[resource.id] = resource;
@@ -142,12 +143,13 @@ export const getResourceElementsAndHeights = (
       } else {
         currentDepth -= 1;
       }
-
-      let height: number;
-      if (maxDepth === -1) { height = viewConfig.resourceAxis.row.height }
-      else { height = (maxDepth + 1) * assignmentHeight + (maxDepth + 2) * viewConfig.resourceAxis.row.padding }
-      resourceHeights.set(resource, { depth: maxDepth, pixels: height });
     }
+
+    let height: number;
+    if (maxDepth === -1) { height = viewConfig.resourceAxis.row.height }
+    else { height = (maxDepth + 1) * assignmentHeight + (maxDepth + 2) * viewConfig.resourceAxis.row.padding }
+    resourceHeights.set(resource, { depth: maxDepth, pixels: height, top: accumTop });
+    accumTop += height;
   }
 
   return { resourceElements, resourceHeights };

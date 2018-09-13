@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { DragSource, ConnectDragSource } from 'react-dnd';
+import { DragSource, ConnectDragSource, DragSourceSpec } from 'react-dnd';
 
-import { AssignmentElement as AssignmentElementInterface, ViewConfig } from '../../index';
+import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource } from '../../index';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
   viewConfig: ViewConfig;
+  dragContext: DragContext;
+  resource: Resource;
   connectDragSource?: ConnectDragSource;
 }
 
@@ -17,10 +19,21 @@ const styles = {
   }
 }
 
-const assignmentSource = {
+interface AssignmentSourceDragObject {
+  id: number | string;
+};
+
+const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceDragObject> = {
   beginDrag(props, monitor, component) {
-    const item = { id: props.element.assignment.id }
-    return item;
+    props.dragContext.start(props.element.assignment, props.element.event, props.resource);
+
+    return { id: props.element.assignment.id }
+  },
+  endDrag(props, monitor, component) {
+    props.dragContext.end(true);
+  },
+  isDragging(props, monitor) {
+    return monitor.getItem().id === props.element.assignment.id;
   }
 }
 

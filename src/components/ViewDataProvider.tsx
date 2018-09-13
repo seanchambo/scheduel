@@ -43,9 +43,7 @@ class ViewDataProvider extends React.PureComponent<ViewDataProviderProps, ViewDa
   }
 
   render() {
-    const { start, end, ticksConfig, resourceElements, resourceHeights } = this.state;
-
-    return this.props.children({ start, end, ticksConfig, resourceElements, resourceHeights })
+    return this.props.children(this.state)
   }
 }
 

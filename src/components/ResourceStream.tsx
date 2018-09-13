@@ -33,7 +33,7 @@ const styles = {
 
 class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   render() {
-    const { viewConfig: { resourceAxis, timeAxis }, resourceHeights, resources } = this.props;
+    const { viewConfig: { resourceAxis, timeAxis }, resourceHeights, resources, dragContext } = this.props;
     const rootStyle = { ...styles.root, width: resourceAxis.width };
     const headerStyle = { ...styles.row, height: timeAxis.major.height + timeAxis.minor.height };
 
@@ -58,7 +58,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                 {resourceAxis.columns.map((column) => {
                   return (
                     <div key={column.name} style={styles.column}>
-                      {column.renderer(resource)}
+                      {column.renderer(resource, dragContext.hoveredResource === resource, dragContext.originalResource === resource)}
                     </div>
                   )
                 })}

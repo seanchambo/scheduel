@@ -14,14 +14,16 @@ export declare interface DragContext {
   draggedEvent: Event;
   hoveredResource: Resource;
   originalResource: Resource;
-  initialiseContext: (event: Event, resource: Resource) => void;
-  updateContext: (resource: Resource) => void;
-  cleanupContext: () => void
+  draggedAssignment: Assignment;
+  start: (assignment: Assignment, event: Event, resource: Resource) => void;
+  update: (resource: Resource) => void;
+  end: (successful: boolean) => void
 }
 
 export declare interface ResourceHeight {
   depth: number;
   pixels: number;
+  top: number;
 }
 
 export declare type ResourceElementMap = Map<Resource, AssignmentElement[]>;
@@ -123,5 +125,5 @@ export declare interface ResourceColumn {
   header: {
     renderer: () => ReactNode;
   };
-  renderer: (resource: Resource) => ReactNode;
+  renderer: (resource: Resource, isOver: boolean, wasOriginal: boolean) => ReactNode;
 }

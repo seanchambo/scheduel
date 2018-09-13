@@ -9,40 +9,36 @@ interface DragContextProviderProps {
   children: (dragContext: DragContext) => React.ReactNode;
 }
 
-interface DragContextProviderState {
-  dragging: boolean;
-  draggedEvent: Event;
-  hoveredResource: Resource;
-  originalResource: Resource;
-}
+class DragContextProvider extends React.PureComponent<DragContextProviderProps, DragContext> {
+  constructor(props) {
+    super(props);
 
-class DragContextProvider extends React.PureComponent<DragContextProviderProps, DragContextProviderState> {
-  state = {
-    dragging: false,
-    draggedEvent: null,
-    hoveredResource: null,
-    originalResource: null,
+    this.state = {
+      dragging: false,
+      draggedEvent: null,
+      draggedAssignment: null,
+      hoveredResource: null,
+      originalResource: null,
+      start: this.start,
+      update: this.update,
+      end: this.end,
+    }
   }
 
-  initaliseContext = (event: Event, resource: Resource) => {
-    this.setState({ dragging: true, draggedEvent: event, originalResource: resource });
+  start = (assignment: Assignment, event: Event, resource: Resource) => {
+    this.setState({ dragging: true, draggedAssignment: assignment, draggedEvent: event, originalResource: resource });
   }
 
-  updateContext = (resource: Resource) => {
+  update = (resource: Resource) => {
     this.setState({ hoveredResource: resource });
   }
 
-  cleanupContext = () => {
-    this.setState({ dragging: false, hoveredResource: null, draggedEvent: null, originalResource: null });
+  end = (successful: boolean) => {
+    this.setState({ dragging: false, draggedAssignment: null, hoveredResource: null, draggedEvent: null, originalResource: null });
   }
 
   render() {
-    return this.props.children({
-      ...this.state,
-      initialiseContext: this.initaliseContext,
-      updateContext: this.updateContext,
-      cleanupContext: this.cleanupContext
-    });
+    return this.props.children(this.state);
   }
 }
 

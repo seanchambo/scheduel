@@ -3,17 +3,28 @@ import * as React from 'react';
 
 import Scheduler from 'scheduel';
 
-import { Assignment, Event, Resource, Tick } from '../../index';
+import { Assignment, Event, Resource, Tick, ViewConfig } from '../../index';
 import colours from './constants/colours';
 
 const styles = {
-  event: {
-    alignItems: 'center',
-    background: 'rgba(244, 67, 54, 0.7)',
-    display: 'block',
-    flex: '1',
-    flexDirection: 'column' as 'column',
-    justifyContent: 'center',
+  events: {
+    root: {
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'flex-start',
+      background: '#4dadf7',
+      border: '1px solid #0a7fd9',
+      opacity: 0.8,
+      borderRadius: 3,
+      color: '#fff',
+      fontSize: 12,
+      width: 'inherit',
+      minWidth: 1,
+      overflow: 'hidden'
+    },
+    inner: {
+      paddingLeft: '0.75em',
+    },
   },
   resourceAxis: {
     cell: {
@@ -77,9 +88,9 @@ const styles = {
   },
 };
 
-const viewConfig = {
+const viewConfig: ViewConfig = {
   events: {
-    renderer: (event: Event) => <div style={styles.event}>{event.data && event.data.name || ''}</div>
+    renderer: (event: Event) => <div style={styles.events.root}><div style={styles.events.inner}>{event.data && event.data.name || ''}</div></div>
   },
   resourceAxis: {
     columns: [{
@@ -87,8 +98,12 @@ const viewConfig = {
         renderer: () => <div style={styles.resourceAxis.root}><span>Name</span></div>
       },
       name: 'Name',
-      renderer: (resource: Resource) => {
-        const style = { ...styles.resourceAxis.root, ...styles.resourceAxis.cell };
+      renderer: (resource: Resource, isOver: boolean, wasOriginal: boolean) => {
+        const style = {
+          ...styles.resourceAxis.root,
+          ...styles.resourceAxis.cell,
+          backgroundColor: wasOriginal ? 'yellow' : isOver ? 'green' : styles.resourceAxis.root.background,
+        };
         return (
           <div style={style}><span>{resource.name}</span></div>
         )
@@ -196,7 +211,7 @@ const events: Event[] = [{
 }, {
   id: 4,
   startTime: new Date(2018, 8, 5, 0, 10, 0, 0),
-  endTime: new Date(2018, 8, 5, 12, 30, 40, 1),
+  endTime: new Date(2018, 8, 5, 1, 30, 40, 1),
   data: {
     name: 'Make Bed'
   },
