@@ -51,7 +51,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
         </div>
         <div style={styles.body}>
           {resources.map((resource) => {
-            const rowStyle = { ...styles.row, flex: 1, height: resourceHeights.get(resource) }
+            const rowStyle = { ...styles.row, flex: 1, height: resourceHeights.get(resource).pixels }
 
             return (
               <div key={resource.id} style={rowStyle}>

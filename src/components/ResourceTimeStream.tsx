@@ -31,7 +31,7 @@ class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamP
   render() {
     const { resources, ticksConfig, viewConfig, resourceElements, resourceHeights, dragContext } = this.props;
 
-    const minHeight = Array.from(resourceHeights.values()).reduce((acc, height) => acc + height, 0);
+    const minHeight = Array.from(resourceHeights.values()).reduce((acc, height) => acc + height.pixels, 0);
 
     const style = {
       ...styles.root,

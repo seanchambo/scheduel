@@ -105,7 +105,10 @@ const viewConfig = {
         )
       }
     }],
-    height: 50,
+    row: {
+      height: 50,
+      padding: 5,
+    },
     width: 300,
   },
   ticks: {
@@ -159,15 +162,19 @@ const resources: Resource[] = [{
 }];
 
 const assignments: Assignment[] = [{
+  id: 1,
   eventId: 1,
   resourceId: 1,
 }, {
+  id: 2,
   eventId: 2,
   resourceId: 1,
 }, {
+  id: 3,
   eventId: 3,
   resourceId: 2,
 }, {
+  id: 4,
   eventId: 4,
   resourceId: 1,
 }];

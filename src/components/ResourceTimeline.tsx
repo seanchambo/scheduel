@@ -1,14 +1,17 @@
 import * as React from 'react';
+import { DragSource, DropTarget, ConnectDropTarget } from 'react-dnd';
 
-import { Resource, TicksConfig, ViewConfig, AssignmentElement, DragContext } from '../../index';
+import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceHeight } from '../../index';
+import AssignmentElement from './AssignmentElement';
 
 interface ResourceTimelineProps {
   resource: Resource;
-  elements: AssignmentElement[];
+  elements: AssignmentElementInterface[];
   ticksConfig: TicksConfig;
   viewConfig: ViewConfig;
   dragContext: DragContext;
-  height: number;
+  connectDropTarget?: ConnectDropTarget;
+  height: ResourceHeight;
 }
 
 const styles = {
@@ -17,32 +20,23 @@ const styles = {
     flex: '1',
     position: 'relative' as 'relative',
   },
-  event: {
-    position: 'absolute' as 'absolute',
-    display: 'flex',
-    height: '100%',
-    overflow: 'hidden',
-  }
 };
 
+const resourceTarget = {}
+
+@DropTarget('assignment', resourceTarget, (connect, monitor) => ({ connectDropTarget: connect.dropTarget() }))
 class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   render() {
-    const rootStyle = { ...styles.root, height: this.props.height };
+    const rootStyle = {
+      ...styles.root,
+      height: this.props.height.pixels,
+      paddingTop: this.props.viewConfig.resourceAxis.row.padding,
+      paddingBottom: this.props.viewConfig.resourceAxis.row.padding
+    };
 
-    return (
+    return this.props.connectDropTarget(
       <div style={rootStyle}>
-        {this.props.elements.map((element) => {
-          const style = {
-            ...styles.event,
-            left: element.startX,
-            width: element.endX - element.startX,
-            top: element.top,
-            height: this.props.viewConfig.resourceAxis.height,
-          };
-
-          // TODO: Make based on assignment
-          return <div key={element.event.id} style={style}>{this.props.viewConfig.events.renderer(element.event)}</div>
-        })}
+        {this.props.elements.map((element) => <AssignmentElement key={element.assignment.id} element={element} viewConfig={this.props.viewConfig} />)}
       </div>
     )
   }

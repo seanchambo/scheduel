@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, ViewConfig, ResourceHeightsMap, ResourceElementMap, Event, Resource, Assignment, AssignmentElement, TicksConfig } from '../../index';
+import { Tick, ViewConfig, ResourceHeightsMap, ResourceElementMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceHeight } from '../../index';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -65,8 +65,10 @@ export const getResourceElementsAndHeights = (
   const resourceMap: { [key: string]: Resource } = {};
   const resourceEventsMap: { [key: string]: ResourceEventItem[] } = {};
 
-  const resourceHeights: ResourceHeightsMap = new Map<Resource, number>();
+  const resourceHeights: ResourceHeightsMap = new Map<Resource, ResourceHeight>();
   const resourceElements: ResourceElementMap = new Map<Resource, AssignmentElement[]>();
+
+  const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
 
   for (const resource of resources) {
     resourceMap[resource.id] = resource;
@@ -88,7 +90,7 @@ export const getResourceElementsAndHeights = (
 
     const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
 
-    const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment };
+    const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment, height: assignmentHeight };
 
     const startEvent: ResourceEventItem = { date: new Date(event.startTime), type: 'start' as 'start', assignmentElement };
     const endEvent: ResourceEventItem = { date: new Date(event.endTime), type: 'end' as 'end', assignmentElement }
@@ -136,11 +138,15 @@ export const getResourceElementsAndHeights = (
             maxDepth = currentDepth
           }
         }
-        resourceEvent.assignmentElement.top = currentDepth * viewConfig.resourceAxis.height;
+        resourceEvent.assignmentElement.top = currentDepth * assignmentHeight + (currentDepth + 1) * viewConfig.resourceAxis.row.padding;
       } else {
         currentDepth -= 1;
       }
-      resourceHeights.set(resource, (maxDepth + 1) * viewConfig.resourceAxis.height);
+
+      let height: number;
+      if (maxDepth === -1) { height = viewConfig.resourceAxis.row.height }
+      else { height = (maxDepth + 1) * assignmentHeight + (maxDepth + 2) * viewConfig.resourceAxis.row.padding }
+      resourceHeights.set(resource, { depth: maxDepth, pixels: height });
     }
   }
 

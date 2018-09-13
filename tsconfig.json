@@ -4,6 +4,7 @@
     "target": "es6",
     "declarationDir": "./dist",
     "declaration": true,
+    "experimentalDecorators": true,
     "types": [
       "node",
       "jest",

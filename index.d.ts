@@ -19,19 +19,26 @@ export declare interface DragContext {
   cleanupContext: () => void
 }
 
+export declare interface ResourceHeight {
+  depth: number;
+  pixels: number;
+}
+
 export declare type ResourceElementMap = Map<Resource, AssignmentElement[]>;
-export declare type ResourceHeightsMap = Map<Resource, number>;
+export declare type ResourceHeightsMap = Map<Resource, ResourceHeight>;
 
 export declare interface AssignmentElement {
   startX: number;
   endX: number;
   top: number;
+  height: number;
   event: Event;
   assignment: Assignment;
 }
 
 // TODO: AssignmentId??
 export declare interface Assignment {
+  id: number | string;
   resourceId: number | string;
   eventId: number | string;
   data?: { [key: string]: any };
@@ -66,7 +73,7 @@ export declare interface ViewConfig {
 }
 
 export declare interface EventsViewConfig {
-  renderer: (event: Event) => ReactNode;
+  renderer: (event: Event, assignment: Assignment) => ReactNode;
 }
 
 export declare interface TicksViewConfig {
@@ -103,7 +110,10 @@ export declare interface MinorTimeAxisRowConfig extends TimeAxisRowConfig {
 }
 
 export declare interface ResourceAxisConfig {
-  height: number;
+  row: {
+    height: number;
+    padding: number;
+  };
   width: number;
   columns: ResourceColumn[];
 }
