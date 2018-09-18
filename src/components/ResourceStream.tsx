@@ -1,20 +1,21 @@
 import * as React from 'react';
+import { ScrollSyncChildProps } from 'react-virtualized';
 
-import { Resource, ViewConfig, DragContext, ResourceHeightsMap, ResourceElementMap } from '../../index';
+import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../../index';
 
 interface ResourceStreamProps {
   resources: Resource[];
   viewConfig: ViewConfig;
   dragContext: DragContext;
-  resourceHeights: ResourceHeightsMap;
-  resourceElements: ResourceElementMap;
+  resourceElements: ResourceElement[];
+  resourceAssignments: ResourceAssignmentMap;
+  scrollContext: ScrollSyncChildProps;
 };
 
 const styles = {
   root: {
-    display: 'flex',
-    flexDirection: 'column' as 'column',
     flex: 'none',
+    height: '100%',
     overflowX: 'scroll' as 'scroll',
   },
   row: {
@@ -22,8 +23,7 @@ const styles = {
     flexDirection: 'row' as 'row',
   },
   body: {
-    display: 'flex',
-    flexDirection: 'column' as 'column',
+    overflowY: 'hidden' as 'hidden',
   },
   column: {
     display: 'flex',
@@ -32,10 +32,19 @@ const styles = {
 }
 
 class ResourceStream extends React.PureComponent<ResourceStreamProps> {
+  resourcesBody: React.RefObject<HTMLDivElement>
+
+  constructor(props) {
+    super(props);
+
+    this.resourcesBody = React.createRef();
+  }
+
   render() {
-    const { viewConfig: { resourceAxis, timeAxis }, resourceHeights, resources, dragContext } = this.props;
+    const { viewConfig: { resourceAxis, timeAxis }, resourceElements, resources, dragContext } = this.props;
     const rootStyle = { ...styles.root, width: resourceAxis.width };
     const headerStyle = { ...styles.row, height: timeAxis.major.height + timeAxis.minor.height };
+    const bodyStyle = { ...styles.body, height: `calc(100% - ${timeAxis.major.height}px - ${timeAxis.minor.height}px)` }
 
     return (
       <div style={rootStyle}>
@@ -49,9 +58,9 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
           })}
 
         </div>
-        <div style={styles.body}>
-          {resources.map((resource) => {
-            const rowStyle = { ...styles.row, flex: 1, height: resourceHeights.get(resource).pixels }
+        <div style={bodyStyle} ref={this.resourcesBody}>
+          {resources.map((resource, index) => {
+            const rowStyle = { ...styles.row, height: resourceElements[index].pixels }
 
             return (
               <div key={resource.id} style={rowStyle}>

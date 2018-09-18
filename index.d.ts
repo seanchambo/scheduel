@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 
 type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
+export declare type ResourceRowLayout = "stack" | "pack" | "overlap";
 
 export declare interface Event {
   id: number | string;
@@ -20,14 +21,14 @@ export declare interface DragContext {
   end: (successful: boolean) => void
 }
 
-export declare interface ResourceHeight {
+export declare interface ResourceElement {
   depth: number;
   pixels: number;
   top: number;
+  resource: Resource;
 }
 
-export declare type ResourceElementMap = Map<Resource, AssignmentElement[]>;
-export declare type ResourceHeightsMap = Map<Resource, ResourceHeight>;
+export declare type ResourceAssignmentMap = Map<Resource, AssignmentElement[]>;
 
 export declare interface AssignmentElement {
   startX: number;
@@ -35,6 +36,7 @@ export declare interface AssignmentElement {
   top: number;
   height: number;
   event: Event;
+  depth: number;
   assignment: Assignment;
 }
 
@@ -80,11 +82,14 @@ export declare interface EventsViewConfig {
 
 export declare interface TicksViewConfig {
   major: {
-    renderer: (left: number) => ReactNode,
+    renderer: (tick: Tick) => ReactNode,
   },
   minor: {
-    renderer: (left: number) => ReactNode,
+    renderer: (tick: Tick) => ReactNode,
   },
+  resource: {
+    renderer: (resource: Resource) => ReactNode,
+  }
 }
 
 export declare interface TimeSpanConfig {
@@ -115,6 +120,7 @@ export declare interface ResourceAxisConfig {
   row: {
     height: number;
     padding: number;
+    layout: 'stack' | 'pack' | 'overlap';
   };
   width: number;
   columns: ResourceColumn[];

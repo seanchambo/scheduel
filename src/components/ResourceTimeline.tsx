@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { DragSource, DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
-import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceHeight } from '../../index';
+import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement } from '../../index';
 import AssignmentElement from './AssignmentElement';
 
 interface ResourceTimelineProps {
   resource: Resource;
-  elements: AssignmentElementInterface[];
+  assignments: AssignmentElementInterface[];
   ticksConfig: TicksConfig;
   viewConfig: ViewConfig;
   dragContext: DragContext;
   connectDropTarget?: ConnectDropTarget;
   isOver?: boolean;
-  height: ResourceHeight;
+  height: ResourceElement;
 }
 
 const styles = {
@@ -42,11 +42,12 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
       height: this.props.height.pixels,
       paddingTop: this.props.viewConfig.resourceAxis.row.padding,
       paddingBottom: this.props.viewConfig.resourceAxis.row.padding,
+      width: this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width,
     };
 
     return this.props.connectDropTarget(
       <div style={rootStyle}>
-        {this.props.elements.map((element) =>
+        {this.props.assignments.map((element) =>
           <AssignmentElement
             key={element.assignment.id}
             element={element}

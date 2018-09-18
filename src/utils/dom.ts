@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, ViewConfig, ResourceHeightsMap, ResourceElementMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceHeight } from '../../index';
+import { Tick, ViewConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceElement } from '../../index';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -60,21 +60,18 @@ export const getResourceElementsAndHeights = (
   ticksConfig: TicksConfig,
   start: Date,
   end: Date,
-): { resourceHeights: ResourceHeightsMap, resourceElements: ResourceElementMap } => {
+): { resourceElements: ResourceElement[], resourceAssignments: ResourceAssignmentMap } => {
   const eventMap: { [key: string]: Event } = {};
   const resourceMap: { [key: string]: Resource } = {};
   const resourceEventsMap: { [key: string]: ResourceEventItem[] } = {};
 
-  const resourceHeights: ResourceHeightsMap = new Map<Resource, ResourceHeight>();
-  const resourceElements: ResourceElementMap = new Map<Resource, AssignmentElement[]>();
-
-  const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
-  let accumTop: number = 0;
+  const resourceElements: ResourceElement[] = [];
+  const resourceAssignments: ResourceAssignmentMap = new Map<Resource, AssignmentElement[]>();
 
   for (const resource of resources) {
     resourceMap[resource.id] = resource;
     resourceEventsMap[resource.id] = [];
-    resourceElements.set(resource, []);
+    resourceAssignments.set(resource, []);
   }
 
   for (const event of events) {
@@ -91,7 +88,7 @@ export const getResourceElementsAndHeights = (
 
     const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
 
-    const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment, height: assignmentHeight };
+    const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment, height: null, depth: null };
 
     const startEvent: ResourceEventItem = { date: new Date(event.startTime), type: 'start' as 'start', assignmentElement };
     const endEvent: ResourceEventItem = { date: new Date(event.endTime), type: 'end' as 'end', assignmentElement }
@@ -101,8 +98,10 @@ export const getResourceElementsAndHeights = (
     resourceEventsMap[resource.id].push(startEvent);
     resourceEventsMap[resource.id].push(endEvent);
 
-    resourceElements.get(resource).push(assignmentElement);
+    resourceAssignments.get(resource).push(assignmentElement);
   }
+
+  let accumTop: number = 0;
 
   for (const resource of resources) {
     const resourceEvents = resourceEventsMap[resource.id];
@@ -126,33 +125,106 @@ export const getResourceElementsAndHeights = (
       return aMs - bMs;
     });
 
-    let currentDepth = -1;
-    let maxDepth = -1;
+    const { maxDepth, rowHeight } = setAssignmentElementsHeight(resourceEvents, viewConfig);
+    resourceElements.push({ depth: maxDepth, pixels: rowHeight, top: accumTop, resource });
+    accumTop += rowHeight;
+  }
+
+  return { resourceAssignments, resourceElements };
+}
+
+const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewConfig: ViewConfig): { maxDepth: number, rowHeight: number } => {
+  if (viewConfig.resourceAxis.row.layout === 'stack') {
+    const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+    let lanes: AssignmentElement[] = [];
+    let stack: AssignmentElement[] = [];
+    let maxLanesLength: number = 0;
 
     for (let i = 0; i < resourceEvents.length; i++) {
       const resourceEvent = resourceEvents[i];
 
       if (resourceEvent.type === 'start') {
-        if (!resourceEvents[i - 1] || resourceEvents[i - 1].type === 'start') {
-          currentDepth += 1;
-          if (currentDepth > maxDepth) {
-            maxDepth = currentDepth
-          }
-        }
-        resourceEvent.assignmentElement.top = currentDepth * assignmentHeight + (currentDepth + 1) * viewConfig.resourceAxis.row.padding;
+        let nextLane = lanes.indexOf(null);
+        if (nextLane === -1) { nextLane = lanes.length; }
+        resourceEvent.assignmentElement.depth = nextLane;
+        lanes[nextLane] = resourceEvent.assignmentElement;
+        stack.push(resourceEvent.assignmentElement);
+
+        if (lanes.length > maxLanesLength) { maxLanesLength = lanes.length }
       } else {
-        currentDepth -= 1;
+        if (resourceEvent.assignmentElement.depth === lanes.length - 1) { lanes.pop() }
+        else { lanes[resourceEvent.assignmentElement.depth] = null; }
+      }
+
+      let isFinished = lanes.length === 0 ? true : lanes.every(lane => lane === null);
+
+      if (isFinished) {
+        stack.forEach((assignmentElement) => {
+          assignmentElement.height = assignmentHeight;
+          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * viewConfig.resourceAxis.row.padding;
+        });
+
+        stack = [];
       }
     }
 
-    let height: number;
-    if (maxDepth === -1) { height = viewConfig.resourceAxis.row.height }
-    else { height = (maxDepth + 1) * assignmentHeight + (maxDepth + 2) * viewConfig.resourceAxis.row.padding }
-    resourceHeights.set(resource, { depth: maxDepth, pixels: height, top: accumTop });
-    accumTop += height;
+    let rowHeight: number;
+    if (maxLanesLength === 0) { rowHeight = viewConfig.resourceAxis.row.height }
+    else { rowHeight = maxLanesLength * assignmentHeight + (maxLanesLength + 1) * viewConfig.resourceAxis.row.padding }
+
+    return { maxDepth: maxLanesLength, rowHeight };
   }
 
-  return { resourceElements, resourceHeights };
+  if (viewConfig.resourceAxis.row.layout === 'overlap') {
+    const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+
+    for (const event of resourceEvents) {
+      event.assignmentElement.top = viewConfig.resourceAxis.row.padding;
+      event.assignmentElement.height = assignmentHeight;
+      event.assignmentElement.depth = 0;
+    }
+
+    return { maxDepth: 0, rowHeight: viewConfig.resourceAxis.row.height };
+  }
+
+  if (viewConfig.resourceAxis.row.layout === 'pack') {
+    let lanes: AssignmentElement[] = [];
+    let stack: AssignmentElement[] = [];
+    let maxLanesLength: number = 0;
+
+    for (let i = 0; i < resourceEvents.length; i++) {
+      const resourceEvent = resourceEvents[i];
+
+      if (resourceEvent.type === 'start') {
+        let nextLane = lanes.indexOf(null);
+        if (nextLane === -1) { nextLane = lanes.length; }
+        resourceEvent.assignmentElement.depth = nextLane;
+        lanes[nextLane] = resourceEvent.assignmentElement;
+        stack.push(resourceEvent.assignmentElement);
+
+        if (lanes.length > maxLanesLength) { maxLanesLength = lanes.length }
+      } else {
+        if (resourceEvent.assignmentElement.depth === lanes.length - 1) { lanes.pop() }
+        else { lanes[resourceEvent.assignmentElement.depth] = null; }
+      }
+
+      let isFinished = lanes.length === 0 ? true : lanes.every(lane => lane === null);
+
+      if (isFinished) {
+        const assignmentHeight = (viewConfig.resourceAxis.row.height - (1 + maxLanesLength) * viewConfig.resourceAxis.row.padding) / (maxLanesLength);
+
+        stack.forEach((assignmentElement) => {
+          assignmentElement.height = assignmentHeight;
+          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * viewConfig.resourceAxis.row.padding;
+        });
+
+        stack = [];
+        maxLanesLength = 0;
+      }
+    }
+
+    return { maxDepth: 0, rowHeight: viewConfig.resourceAxis.row.height };
+  }
 }
 
 // // Returns -1 if distance cant be found

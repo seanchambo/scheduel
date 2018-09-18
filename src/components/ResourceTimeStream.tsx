@@ -1,6 +1,7 @@
 import * as React from 'react';
+import { List, ScrollSyncChildProps, AutoSizer } from 'react-virtualized';
 
-import { ViewConfig, TicksConfig, Assignment, Resource, Event, AssignmentElement, DragContext, ResourceElementMap, ResourceHeightsMap } from '../../index';
+import { ViewConfig, TicksConfig, Assignment, Resource, Event, AssignmentElement, DragContext, ResourceAssignmentMap, ResourceElement } from '../../index';
 
 import ResourceTimeline from './ResourceTimeline';
 import TickStream from './TickStream';
@@ -12,16 +13,17 @@ interface ResourceTimelineStreamProps {
   events: Event[];
   viewConfig: ViewConfig;
   dragContext: DragContext;
-  resourceElements: ResourceElementMap;
-  resourceHeights: ResourceHeightsMap;
+  resourceAssignments: ResourceAssignmentMap;
+  resourceElements: ResourceElement[];
   start: Date;
   end: Date;
+  scrollContext: ScrollSyncChildProps;
 }
 
 const styles = {
   root: {
     display: 'flex',
-    flex: 'none',
+    flex: '1 0 auto',
     flexDirection: 'column' as 'column',
     position: 'relative' as 'relative',
   }
@@ -29,31 +31,23 @@ const styles = {
 
 class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamProps> {
   render() {
-    const { resources, ticksConfig, viewConfig, resourceElements, resourceHeights, dragContext } = this.props;
-
-    const minHeight = Array.from(resourceHeights.values()).reduce((acc, height) => acc + height.pixels, 0);
-
-    const style = {
-      ...styles.root,
-      width: ticksConfig.minor.length * viewConfig.timeAxis.minor.width,
-      minHeight,
-    };
+    const { resources, ticksConfig, viewConfig, resourceElements, resourceAssignments, dragContext } = this.props;
 
     return (
-      <div style={style}>
-        <TickStream ticksConfig={ticksConfig} viewConfig={viewConfig} />
-        {resources.map(resource =>
+      <div style={styles.root}>
+        <TickStream ticksConfig={ticksConfig} viewConfig={viewConfig} resourceElements={resourceElements} />
+        {resources.map((resource, index) => (
           <ResourceTimeline
             key={resource.id}
+            height={resourceElements[index]}
             resource={resource}
-            elements={resourceElements.get(resource)}
-            height={resourceHeights.get(resource)}
+            assignments={resourceAssignments.get(resource)}
             viewConfig={viewConfig}
             ticksConfig={ticksConfig}
             dragContext={dragContext} />
-        )}
+        ))}
       </div>
-    )
+    );
   }
 }
 

@@ -14,7 +14,7 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
     const { ticksConfig, timeAxisConfig } = this.props;
 
     return (
-      <div>
+      <div style={{ width: timeAxisConfig.minor.width * ticksConfig.minor.length }}>
         <TimeAxis key="major" ticks={ticksConfig.major} config={timeAxisConfig.major} />
         <TimeAxis key="minor" ticks={ticksConfig.minor} config={timeAxisConfig.minor} />
       </div>
