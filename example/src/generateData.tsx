@@ -1,4 +1,4 @@
-import { Assignment, Resource, Event } from '../../index';
+import { models } from 'scheduel';
 
 const colours = ['#2cb743', '#0838fa', '#1e95a4']
 
@@ -19,10 +19,10 @@ const randomColour = () => {
   return colours[index];
 }
 
-export const generateData = (start: Date, end: Date, resourceNumber: number, eventsPerResource: number): { assignments: Assignment[], resources: Resource[], events: Event[] } => {
-  const resources: Resource[] = [];
-  const events: Event[] = [];
-  const assignments: Assignment[] = [];
+export const generateData = (start: Date, end: Date, resourceNumber: number, eventsPerResource: number): { assignments: models.Assignment[], resources: models.Resource[], events: models.Event[] } => {
+  const resources: models.Resource[] = [];
+  const events: models.Event[] = [];
+  const assignments: models.Assignment[] = [];
 
   for (let i = 0; i < resourceNumber; i++) {
     resources.push({ id: i, name: `Resource ${i}`, data: { age: randomBetween(1, 100) } });

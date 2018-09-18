@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { TicksConfig, ViewConfig, ResourceElement } from '../../index';
+import { TicksConfig, ViewConfig, ResourceElement } from '../models';
 
 interface TickStreamProps {
   ticksConfig: TicksConfig;

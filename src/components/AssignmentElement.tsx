@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { DragSource, ConnectDragSource, DragSourceSpec } from 'react-dnd';
 
-import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource } from '../../index';
+import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig } from '../models';
+import { getDateFromPosition } from '../utils/dom';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
   viewConfig: ViewConfig;
+  ticksConfig: TicksConfig;
   dragContext: DragContext;
   resource: Resource;
   connectDragSource?: ConnectDragSource;
@@ -30,7 +32,14 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
     return { id: props.element.assignment.id }
   },
   endDrag(props, monitor, component) {
-    props.dragContext.end(true);
+    const result = monitor.getDropResult();
+    const cursorX = result.start.x - props.viewConfig.resourceAxis.width;
+    const cursorOffset = cursorX - props.element.startX;
+
+    const finishX = result.finish.x - props.viewConfig.resourceAxis.width - cursorOffset;
+    const date = getDateFromPosition(finishX, props.ticksConfig.minor);
+
+    props.dragContext.end(true, date);
   },
   isDragging(props, monitor) {
     return monitor.getItem().id === props.element.assignment.id;
@@ -42,7 +51,7 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
 }))
 class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
   render() {
-    const { element, connectDragSource } = this.props;
+    const { element, connectDragSource, resource } = this.props;
 
     const style = {
       ...styles.root,
@@ -56,7 +65,7 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
       <div
         key={element.event.id}
         style={style}>
-        {this.props.viewConfig.events.renderer(element.event, element.assignment)}
+        {this.props.viewConfig.events.renderer(element.event, element.assignment, resource)}
       </div>
     )
   }

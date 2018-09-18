@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { List, ScrollSyncChildProps, AutoSizer } from 'react-virtualized';
 
-import { ViewConfig, TicksConfig, Assignment, Resource, Event, AssignmentElement, DragContext, ResourceAssignmentMap, ResourceElement } from '../../index';
+import { ViewConfig, TicksConfig, Assignment, Resource, Event, AssignmentElement, DragContext, ResourceAssignmentMap, ResourceElement } from '../models';
 
 import ResourceTimeline from './ResourceTimeline';
 import TickStream from './TickStream';
@@ -17,7 +16,6 @@ interface ResourceTimelineStreamProps {
   resourceElements: ResourceElement[];
   start: Date;
   end: Date;
-  scrollContext: ScrollSyncChildProps;
 }
 
 const styles = {
@@ -29,7 +27,20 @@ const styles = {
   }
 }
 
-class ResourceTimelineStream extends React.PureComponent<ResourceTimelineStreamProps> {
+class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps> {
+  shouldComponentUpdate(nextProps: ResourceTimelineStreamProps) {
+    if (this.props.ticksConfig !== nextProps.ticksConfig) return true;
+    if (this.props.assignments !== nextProps.assignments) return true;
+    if (this.props.resources !== nextProps.resources) return true;
+    if (this.props.events !== nextProps.events) return true;
+    if (this.props.viewConfig !== nextProps.viewConfig) return true;
+    if (this.props.resourceAssignments !== nextProps.resourceAssignments) return true;
+    if (this.props.resourceElements !== nextProps.resourceElements) return true;
+    if (this.props.start !== nextProps.start) return true;
+    if (this.props.end !== nextProps.end) return true
+    return false;
+  }
+
   render() {
     const { resources, ticksConfig, viewConfig, resourceElements, resourceAssignments, dragContext } = this.props;
 

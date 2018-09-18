@@ -1,4 +1,4 @@
-import { TimeAxisRowConfig, Tick, MinorTimeAxisRowConfig, TimeAxisConfig, TicksConfig } from "../../index";
+import { TimeAxisRowConfig, Tick, MinorTimeAxisRowConfig, TimeAxisConfig, TicksConfig } from '../models';
 import { addUnit } from './date';
 
 export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeAxisRowConfig): Tick[] => {

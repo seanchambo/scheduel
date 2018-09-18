@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, ViewConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceElement } from '../../index';
+import { Tick, ViewConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceElement } from '../models';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -275,29 +275,29 @@ const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewCo
 //   return startWidth + endWidth + middleWidth;
 // }
 
-// // Returns null if position does not exist within ticks
-// export const getDateFromPosition = (x: number, ticks: Tick[]): Date => {
-//   let currentX = 0;
-//   let currentIndex = 0;
+// Returns null if position does not exist within ticks
+export const getDateFromPosition = (x: number, ticks: Tick[]): Date => {
+  let currentX = 0;
+  let currentIndex = 0;
 
-//   while (true) {
-//     const tick = ticks[currentIndex];
+  while (true) {
+    const tick = ticks[currentIndex];
 
-//     if (currentX + tick.width >= x) {
-//       const distanceFromXToTickStart = x - currentX;
-//       const ratio = distanceFromXToTickStart / tick.width;
-//       const msFromTickStartToX = ratio * tick.incrementInMs;
-//       return new Date(tick.startTime.getTime() + msFromTickStartToX);
-//     }
+    if (currentX + tick.width >= x) {
+      const distanceFromXToTickStart = x - currentX;
+      const ratio = distanceFromXToTickStart / tick.width;
+      const msFromTickStartToX = ratio * tick.incrementInMs;
+      return new Date(tick.startTime.getTime() + msFromTickStartToX);
+    }
 
-//     currentX += tick.width;
-//     currentIndex += 1;
+    currentX += tick.width;
+    currentIndex += 1;
 
-//     if (currentIndex === ticks.length) {
-//       return null;
-//     }
-//   }
-// }
+    if (currentIndex === ticks.length) {
+      return null;
+    }
+  }
+}
 
 // // Returns -1 if date does not exist within ticks
 // export const getPositionFromDate = (date: Date, ticks: Tick[]): number => {

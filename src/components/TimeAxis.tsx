@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Tick, TimeAxisRowConfig } from '../../index';
+import { Tick, TimeAxisRowConfig } from '../models';
 
 interface TimeAxisProps {
   ticks: Tick[];

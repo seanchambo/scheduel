@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { ScrollSync } from 'react-virtualized';
 
-import { Assignment, Resource, Event, ViewConfig } from '../../index';
+import { Assignment, Resource, Event, ViewConfig, ListenersConfig } from '../models';
 import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
 import DragContextProvider from './DragContextProvider';
@@ -9,10 +8,11 @@ import TimeHeader from './TimeHeader';
 import ResourceTimeStream from './ResourceTimeStream';
 
 interface SchedulerPanelProps {
-  assignments: Assignment[],
-  resources: Resource[],
-  events: Event[],
+  assignments: Assignment[];
+  resources: Resource[];
+  events: Event[];
   viewConfig: ViewConfig;
+  listeners: ListenersConfig;
 }
 
 const styles = {
@@ -56,66 +56,56 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
   }
 
   render() {
-    const { resources, events, assignments, viewConfig } = this.props;
+    const { resources, events, assignments, viewConfig, listeners } = this.props;
 
     return (
-      <ScrollSync>
-        {(scrollContext) => (
-          <ViewDataProvider viewConfig={viewConfig} resources={resources} events={events} assignments={assignments}>
-            {({ start, end, ticksConfig, resourceElements, resourceAssignments }) => {
-              if (!start) return null;
+      <ViewDataProvider viewConfig={viewConfig} resources={resources} events={events} assignments={assignments}>
+        {({ start, end, ticksConfig, resourceElements, resourceAssignments }) => (
+          <DragContextProvider resources={resources} events={events} assignments={assignments} listeners={listeners}>
+            {(dragContext) => {
+              const timelineStyle = { ...styles.timeline, maxWidth: `calc(100% - ${viewConfig.resourceAxis.width}px)` };
+              const resourceStreamStyle = {
+                ...styles.resourceStream,
+                height: `calc(100% - ${viewConfig.timeAxis.major.height}px - ${viewConfig.timeAxis.minor.height}px)`,
+              }
+              const timeHeaderStyle = {
+                ...styles.timeHeaderStyle,
+                height: viewConfig.timeAxis.major.height + viewConfig.timeAxis.minor.height,
+              }
 
               return (
-                <DragContextProvider resources={resources} events={events} assignments={assignments}>
-                  {(dragContext) => {
-                    const timelineStyle = { ...styles.timeline, maxWidth: `calc(100% - ${viewConfig.resourceAxis.width}px)` };
-                    const resourceStreamStyle = {
-                      ...styles.resourceStream,
-                      height: `calc(100% - ${viewConfig.timeAxis.major.height}px - ${viewConfig.timeAxis.minor.height}px)`,
-                    }
-                    const timeHeaderStyle = {
-                      ...styles.timeHeaderStyle,
-                      height: viewConfig.timeAxis.major.height + viewConfig.timeAxis.minor.height,
-                    }
-
-                    return (
-                      <div style={styles.root}>
-                        <ResourceStream
-                          ref={this.resourcesStream}
-                          scrollContext={scrollContext}
-                          resources={resources}
-                          viewConfig={viewConfig}
-                          dragContext={dragContext}
-                          resourceElements={resourceElements}
-                          resourceAssignments={resourceAssignments} />
-                        <div style={timelineStyle}>
-                          <div style={timeHeaderStyle} ref={this.timeHeader}>
-                            <TimeHeader
-                              ticksConfig={ticksConfig}
-                              timeAxisConfig={viewConfig.timeAxis} />
-                          </div>
-                          <div style={resourceStreamStyle} ref={this.resourcesTimeStream}>
-                            <ResourceTimeStream
-                              {...this.props}
-                              scrollContext={scrollContext}
-                              start={start}
-                              end={end}
-                              resourceAssignments={resourceAssignments}
-                              resourceElements={resourceElements}
-                              ticksConfig={ticksConfig}
-                              dragContext={dragContext} />
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  }}
-                </DragContextProvider>
+                <div style={styles.root}>
+                  <ResourceStream
+                    ref={this.resourcesStream}
+                    resources={resources}
+                    viewConfig={viewConfig}
+                    dragContext={dragContext}
+                    resourceElements={resourceElements}
+                    resourceAssignments={resourceAssignments} />
+                  <div style={timelineStyle}>
+                    <div style={timeHeaderStyle} ref={this.timeHeader}>
+                      <TimeHeader
+                        ticksConfig={ticksConfig}
+                        timeAxisConfig={viewConfig.timeAxis} />
+                    </div>
+                    <div style={resourceStreamStyle} ref={this.resourcesTimeStream}>
+                      <ResourceTimeStream
+                        {...this.props}
+                        start={start}
+                        end={end}
+                        resourceAssignments={resourceAssignments}
+                        resourceElements={resourceElements}
+                        ticksConfig={ticksConfig}
+                        dragContext={dragContext} />
+                    </div>
+                  </div>
+                </div>
               )
             }}
-          </ViewDataProvider>
+          </DragContextProvider>
         )}
-      </ScrollSync>
-    );
+      </ViewDataProvider>
+    )
   }
 }
 

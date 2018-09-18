@@ -14,7 +14,7 @@ import * as addWeeks from 'date-fns/add_weeks';
 import * as addMonths from 'date-fns/add_months';
 import * as addYears from 'date-fns/add_years';
 
-import { TimeUnit } from '../../index';
+import { TimeUnit } from '../models';
 
 interface UnitFnInterface {
   add: Function;

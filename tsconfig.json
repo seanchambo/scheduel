@@ -8,7 +8,8 @@
     "types": [
       "node",
       "jest",
-      "react-dom"
+      "react-dom",
+      "react-virtualized"
     ],
     "jsx": "react",
     "typeRoots": [

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { TicksConfig, TimeAxisConfig } from '../../index';
+import { TicksConfig, TimeAxisConfig } from '../models';
 
 import TimeAxis from './TimeAxis';
 

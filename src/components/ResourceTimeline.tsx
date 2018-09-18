@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DragSource, DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
-import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement } from '../../index';
+import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement } from '../models';
 import AssignmentElement from './AssignmentElement';
 
 interface ResourceTimelineProps {
@@ -23,7 +23,11 @@ const styles = {
   },
 };
 
-const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {}
+const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
+  drop(props, monitor) {
+    return { finish: monitor.getSourceClientOffset(), start: monitor.getInitialSourceClientOffset() };
+  }
+}
 
 @DropTarget('assignment', resourceTarget, (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
@@ -51,6 +55,7 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
           <AssignmentElement
             key={element.assignment.id}
             element={element}
+            ticksConfig={this.props.ticksConfig}
             resource={this.props.resource}
             dragContext={this.props.dragContext}
             viewConfig={this.props.viewConfig} />)}

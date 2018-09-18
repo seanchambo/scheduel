@@ -1,4 +1,4 @@
-import { TimeSpanConfig, TimeAxisConfig } from "../../index";
+import { TimeSpanConfig, TimeAxisConfig } from '../models';
 
 import { startOfUnit, addUnit, adjustToIncrement } from './date';
 

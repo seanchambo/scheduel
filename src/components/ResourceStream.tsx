@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ScrollSyncChildProps } from 'react-virtualized';
 
-import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../../index';
+import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../models';
 
 interface ResourceStreamProps {
   resources: Resource[];
@@ -9,7 +9,6 @@ interface ResourceStreamProps {
   dragContext: DragContext;
   resourceElements: ResourceElement[];
   resourceAssignments: ResourceAssignmentMap;
-  scrollContext: ScrollSyncChildProps;
 };
 
 const styles = {

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
+export declare type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
 export declare type ResourceRowLayout = "stack" | "pack" | "overlap";
 
 export declare interface Event {
@@ -18,7 +18,7 @@ export declare interface DragContext {
   draggedAssignment: Assignment;
   start: (assignment: Assignment, event: Event, resource: Resource) => void;
   update: (resource: Resource) => void;
-  end: (successful: boolean) => void
+  end: (successful: boolean, start: Date) => void
 }
 
 export declare interface ResourceElement {
@@ -76,8 +76,13 @@ export declare interface ViewConfig {
   events: EventsViewConfig;
 }
 
+export declare interface ListenersConfig {
+  assignmentdrop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date) => void;
+  assignmentdrag: (assignment: Assignment, resource: Resource, event: Event) => void;
+}
+
 export declare interface EventsViewConfig {
-  renderer: (event: Event, assignment: Assignment) => ReactNode;
+  renderer: (event: Event, assignment: Assignment, resource: Resource) => ReactNode;
 }
 
 export declare interface TicksViewConfig {

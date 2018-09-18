@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as format from 'date-fns/format'
+import { models } from 'scheduel';
 
-import { TimeAxisConfig, TimeSpanConfig, Tick, ResourceRowLayout } from '../../index';
 import Scheduler from './Scheduler';
 import colours from './constants/colours';
 
@@ -27,12 +27,12 @@ const styles = {
   },
 };
 
-const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
+const timeAxes: { timeSpan: models.TimeSpanConfig, timeAxis: models.TimeAxisConfig }[] = [{
   timeAxis: {
     major: {
       height: 42,
       increment: 1,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -43,7 +43,7 @@ const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
     minor: {
       height: 42,
       increment: 6,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -63,7 +63,7 @@ const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
     major: {
       height: 42,
       increment: 1,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -74,7 +74,7 @@ const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
     minor: {
       height: 42,
       increment: 1,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -94,7 +94,7 @@ const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
     major: {
       height: 42,
       increment: 1,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -105,7 +105,7 @@ const timeAxes: { timeSpan: TimeSpanConfig, timeAxis: TimeAxisConfig }[] = [{
     minor: {
       height: 42,
       increment: 1,
-      renderer: (tick: Tick) =>
+      renderer: (tick: models.Tick) =>
         <div
           key={tick.startTime.getTime()}
           style={{ ...styles.timeAxis.root, width: tick.width }}>
@@ -140,7 +140,7 @@ class App extends React.Component {
     }
   }
 
-  setLayout = (layout: ResourceRowLayout) => {
+  setLayout = (layout: models.ResourceRowLayout) => {
     return () => {
       this.setState({ layout });
     }
@@ -162,7 +162,7 @@ class App extends React.Component {
         </div>
         <div style={{ height: 900, width: '100%' }}>
           <Scheduler
-            layout={this.state.layout as ResourceRowLayout}
+            layout={this.state.layout as models.ResourceRowLayout}
             timeAxis={timeAxes[this.state.zoomLevel].timeAxis}
             timeSpan={timeAxes[this.state.zoomLevel].timeSpan} />
         </div>
