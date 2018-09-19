@@ -54,7 +54,7 @@ const timeAxes: { timeSpan: models.TimeSpanConfig, timeAxis: models.TimeAxisConf
     },
   },
   timeSpan: {
-    duration: 3,
+    duration: 5,
     startTime: new Date(2018, 0, 1, 0, 0, 0, 0),
     unit: 'months' as 'months'
   },
@@ -85,7 +85,7 @@ const timeAxes: { timeSpan: models.TimeSpanConfig, timeAxis: models.TimeAxisConf
     },
   },
   timeSpan: {
-    duration: 10,
+    duration: 5,
     startTime: new Date(2018, 0, 1, 0, 0, 0, 0),
     unit: 'months' as 'months'
   },
@@ -116,7 +116,7 @@ const timeAxes: { timeSpan: models.TimeSpanConfig, timeAxis: models.TimeAxisConf
     },
   },
   timeSpan: {
-    duration: 3,
+    duration: 5,
     startTime: new Date(2018, 0, 1, 0, 0, 0, 0),
     unit: 'months' as 'months'
   },
@@ -126,7 +126,7 @@ class App extends React.Component {
   state = {
     zoomLevel: 1,
     layout: 'stack',
-    ...generateData(new Date(2018, 0, 1, 0, 0, 0, 0), new Date(2018, 10, 1, 0, 0, 0, 0), 1000, 50),
+    ...generateData(new Date(2018, 0, 1, 0, 0, 0, 0), new Date(2018, 5, 1, 0, 0, 0, 0), 10, 10),
   }
 
   updateEvent = (assignment: models.Assignment, resource: models.Resource, event: models.Event, date: Date) => {
@@ -166,7 +166,7 @@ class App extends React.Component {
   }
 
   regenerate = () => {
-    this.setState({ ...generateData(new Date(2018, 0, 1, 0, 0, 0, 0), new Date(2018, 10, 1, 0, 0, 0, 0), 1000, 50) });
+    this.setState({ ...generateData(new Date(2018, 0, 1, 0, 0, 0, 0), new Date(2018, 5, 1, 0, 0, 0, 0), 10, 10) });
   }
 
   public render() {
