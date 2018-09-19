@@ -68,7 +68,6 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
           return (
             <div style={{ width: width, height }}>
               <Grid
-                autoContainerWidth
                 ref={this.majorGrid}
                 style={styles.axis}
                 scrollLeft={this.props.scrollLeft}
@@ -81,7 +80,6 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
                 width={width}
               />
               <Grid
-                autoContainerWidth
                 ref={this.minorGrid}
                 style={styles.axis}
                 scrollLeft={this.props.scrollLeft}

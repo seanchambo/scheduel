@@ -33,6 +33,9 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
   },
   endDrag(props, monitor, component) {
     const result = monitor.getDropResult();
+
+    if (!result) { props.dragContext.end(false, null) }
+
     const cursorX = result.start.x - props.viewConfig.resourceAxis.width;
     const cursorOffset = cursorX - props.element.startX;
 
@@ -55,10 +58,10 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
 
     const style = {
       ...styles.root,
-      left: element.startX,
       width: element.endX - element.startX,
-      top: element.top,
       height: element.height,
+      transition: '0.1s ease-in-out',
+      transform: `translate(${this.props.element.startX}px, ${this.props.element.top}px)`,
     };
 
     return connectDragSource(

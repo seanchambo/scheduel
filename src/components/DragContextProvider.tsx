@@ -36,7 +36,9 @@ class DragContextProvider extends React.PureComponent<DragContextProviderProps, 
   }
 
   end = (successful: boolean, start: Date) => {
-    this.props.listeners.assignmentdrop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
+    if (successful) {
+      this.props.listeners.assignmentdrop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
+    }
     this.setState({ dragging: false, draggedAssignment: null, hoveredResource: null, draggedEvent: null, originalResource: null });
   }
 
