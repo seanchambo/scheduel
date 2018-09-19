@@ -83,6 +83,9 @@ export declare interface ListenersConfig {
 
 export declare interface EventsViewConfig {
   renderer: (event: Event, assignment: Assignment, resource: Resource) => ReactNode;
+  preview: {
+    renderer: (context: EventDragPreviewRenderContext) => ReactNode;
+  }
 }
 
 export declare interface TicksViewConfig {
@@ -95,6 +98,16 @@ export declare interface TicksViewConfig {
   resource: {
     renderer: (resource: Resource) => ReactNode,
   }
+}
+
+export declare interface EventDragPreviewRenderContext {
+  assignment: Assignment;
+  event: Event;
+  originalResource: Resource;
+  hoveredResource: Resource;
+  start: Date;
+  getWidthForEnd: (end: Date) => number;
+  style: React.CSSProperties;
 }
 
 export declare interface TimeSpanConfig {

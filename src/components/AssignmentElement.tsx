@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { DragSource, ConnectDragSource, DragSourceSpec } from 'react-dnd';
+import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
 
 import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig } from '../models';
 import { getDateFromPosition } from '../utils/dom';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
@@ -11,6 +12,7 @@ interface AssignmentElementProps {
   dragContext: DragContext;
   resource: Resource;
   connectDragSource?: ConnectDragSource;
+  connectDragPreview?: ConnectDragPreview;
 }
 
 const styles = {
@@ -54,8 +56,15 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
 
 @DragSource('assignment', assignmentSource, (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
+  connectDragPreview: connect.dragPreview(),
 }))
 class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
+  componentDidMount() {
+    if (this.props.connectDragPreview) {
+      this.props.connectDragPreview(getEmptyImage(), { captureDraggingState: true });
+    }
+  }
+
   render() {
     const { element, connectDragSource, resource } = this.props;
 

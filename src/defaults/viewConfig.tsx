@@ -93,16 +93,36 @@ const styles = {
   },
 };
 
+const eventRenderer = (event: Event, style: React.CSSProperties) => {
+
+
+  return <div style={style}><div style={styles.events.inner}>{event.data && event.data.name || ''}</div></div>
+}
+
 const config: ViewConfig = {
   events: {
-    renderer: (event: Event, assignment: Assignment) => {
+    renderer: (event, assignment) => {
       const style = {
         ...styles.events.root,
         backgroundColor: event.data && event.data.colour || styles.events.root.background,
         borderColor: event.data && event.data.colour || styles.events.root.background,
       };
 
-      return <div style={style}><div style={styles.events.inner}>{event.data && event.data.name || ''}</div></div>
+      return eventRenderer(event, style)
+    },
+    preview: {
+      renderer: ({ event, assignment, hoveredResource, start, getWidthForEnd, style }) => {
+        const duration = event.endTime.getTime() - event.startTime.getTime();
+        const end = new Date(start.getTime() + duration);
+        const width = getWidthForEnd(end);
+        const newStyles = {
+          ...style,
+          ...styles.events.root,
+          width,
+        }
+
+        return eventRenderer(event, newStyles);
+      }
     }
   },
   resourceAxis: {

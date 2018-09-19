@@ -7,6 +7,7 @@ import ViewDataProvider from './ViewDataProvider';
 import DragContextProvider from './DragContextProvider';
 import TimeHeader from './TimeHeader';
 import ResourceTimeStream from './ResourceTimeStream';
+import DragLayer from './DragLayer';
 
 interface SchedulerPanelProps {
   assignments: Assignment[];
@@ -18,6 +19,7 @@ interface SchedulerPanelProps {
 
 const styles = {
   root: {
+    position: 'relative' as 'relative',
     display: 'flex',
     height: '100%',
     width: '100%',
@@ -58,6 +60,12 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                   {({ onScroll, scrollLeft, scrollTop }) => {
                     return (
                       <div style={styles.root}>
+                        <DragLayer
+                          dragContext={dragContext}
+                          viewConfig={viewConfig}
+                          ticksConfig={ticksConfig}
+                          start={start}
+                          end={end} />
                         <ResourceStream
                           scrollTop={scrollTop}
                           resources={resources}
