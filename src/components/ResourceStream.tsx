@@ -62,8 +62,6 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
     const isOver = this.props.dragContext.hoveredResource === resource;
     const wasOriginal = this.props.dragContext.originalResource === resource;
 
-    console.log('** ', isOver, wasOriginal);
-
     return (
       <div style={{ ...style, ...styles.cell }} key={key}>
         {column.renderer(resource, isOver, wasOriginal)}

@@ -54,7 +54,6 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
   }
 
   _addTicks = (props) => {
-    console.log(props)
     const children = defaultCellRangeRenderer(props);
     children.push(
       <TickStream
@@ -88,23 +87,27 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
 
   render() {
     const { resources } = this.props;
+    const maxWidth = this.props.viewConfig.timeAxis.minor.width * this.props.ticksConfig.minor.length;
 
     return (
       <AutoSizer>
-        {({ width, height }) => (
-          <Grid
-            ref={this.grid}
-            onScroll={this.props.onScroll}
-            columnCount={1}
-            columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width}
-            height={height}
-            width={width}
-            cellRenderer={this._renderRow}
-            rowHeight={this._getRowHeight}
-            rowCount={resources.length}>
-            <div id="test"></div>
-          </Grid>
-        )}
+        {({ width, height }) => {
+          const actualWidth = maxWidth < width ? maxWidth : width;
+          return (
+            <Grid
+              ref={this.grid}
+              onScroll={this.props.onScroll}
+              columnCount={1}
+              columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width}
+              height={height}
+              width={actualWidth}
+              cellRenderer={this._renderRow}
+              rowHeight={this._getRowHeight}
+              rowCount={resources.length}>
+              <div id="test"></div>
+            </Grid>
+          )
+        }}
       </AutoSizer>
     );
   }
