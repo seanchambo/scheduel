@@ -77,7 +77,7 @@ export declare interface ViewConfig {
 }
 
 export declare interface ListenersConfig {
-  assignmentdrop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date) => void;
+  assignmentdrop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date, originalResource: Resource) => void;
   assignmentdrag: (assignment: Assignment, resource: Resource, event: Event) => void;
 }
 
@@ -136,5 +136,6 @@ export declare interface ResourceColumn {
   header: {
     renderer: () => ReactNode;
   };
+  width: number;
   renderer: (resource: Resource, isOver: boolean, wasOriginal: boolean) => ReactNode;
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollSyncChildProps } from 'react-virtualized';
+import { Grid, ScrollSync, AutoSizer } from 'react-virtualized';
 
 import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../models';
 
@@ -9,72 +9,123 @@ interface ResourceStreamProps {
   dragContext: DragContext;
   resourceElements: ResourceElement[];
   resourceAssignments: ResourceAssignmentMap;
+  scrollTop: number;
 };
 
 const styles = {
   root: {
-    flex: 'none',
-    height: '100%',
-    overflowX: 'scroll' as 'scroll',
-  },
-  row: {
+    flexDirection: 'column' as 'column',
     display: 'flex',
-    flexDirection: 'row' as 'row',
+    height: '100%'
   },
   body: {
+    flex: '1',
+  },
+  bodyGrid: {
     overflowY: 'hidden' as 'hidden',
   },
-  column: {
+  cell: {
     display: 'flex',
-    flex: 1,
   }
 }
 
 class ResourceStream extends React.PureComponent<ResourceStreamProps> {
-  resourcesBody: React.RefObject<HTMLDivElement>
+  grid: React.RefObject<Grid>
 
   constructor(props) {
     super(props);
 
-    this.resourcesBody = React.createRef();
+    this.grid = React.createRef();
+  }
+
+  componentDidUpdate(prevProps: ResourceStreamProps) {
+    if (this.props.resourceElements !== prevProps.resourceElements) {
+      this.grid.current.recomputeGridSize();
+    }
+
+    if (this.props.dragContext !== prevProps.dragContext) {
+      this.grid.current.forceUpdate()
+    }
+  }
+
+  _renderHeaderCell = ({ columnIndex, style, key }) => {
+    return (
+      <div style={{ ...style, ...styles.cell }} key={key}>
+        {this.props.viewConfig.resourceAxis.columns[columnIndex].header.renderer()}
+      </div>
+    )
+  }
+
+  _renderResourceCell = ({ rowIndex, columnIndex, style, key }) => {
+    const resource = this.props.resources[rowIndex];
+    const column = this.props.viewConfig.resourceAxis.columns[columnIndex];
+    const isOver = this.props.dragContext.hoveredResource === resource;
+    const wasOriginal = this.props.dragContext.originalResource === resource;
+
+    console.log('** ', isOver, wasOriginal);
+
+    return (
+      <div style={{ ...style, ...styles.cell }} key={key}>
+        {column.renderer(resource, isOver, wasOriginal)}
+      </div>
+    )
+  }
+
+  _getColumnWidth = ({ index }) => {
+    return this.props.viewConfig.resourceAxis.columns[index].width;
+  }
+
+  _getResourceHeight = ({ index }) => {
+    return this.props.resourceElements[index].pixels;
   }
 
   render() {
-    const { viewConfig: { resourceAxis, timeAxis }, resourceElements, resources, dragContext } = this.props;
-    const rootStyle = { ...styles.root, width: resourceAxis.width };
-    const headerStyle = { ...styles.row, height: timeAxis.major.height + timeAxis.minor.height };
-    const bodyStyle = { ...styles.body, height: `calc(100% - ${timeAxis.major.height}px - ${timeAxis.minor.height}px)` }
+    const headerHeight = this.props.viewConfig.timeAxis.major.height + this.props.viewConfig.timeAxis.minor.height;
 
     return (
-      <div style={rootStyle}>
-        <div style={headerStyle}>
-          {resourceAxis.columns.map((column) => {
-            return (
-              <div key={column.name} style={styles.column}>
-                {column.header.renderer()}
+      <ScrollSync>
+        {({ onScroll, scrollLeft }) => {
+          return (
+            <div style={{ ...styles.root, width: this.props.viewConfig.resourceAxis.width }}>
+              <div style={{ height: headerHeight, width: this.props.viewConfig.resourceAxis.width }}>
+                <Grid
+                  scrollLeft={scrollLeft}
+                  cellRenderer={this._renderHeaderCell}
+                  columnCount={this.props.viewConfig.resourceAxis.columns.length}
+                  columnWidth={this._getColumnWidth}
+                  height={headerHeight}
+                  rowCount={1}
+                  rowHeight={headerHeight}
+                  width={this.props.viewConfig.resourceAxis.width}
+                />
               </div>
-            )
-          })}
-
-        </div>
-        <div style={bodyStyle} ref={this.resourcesBody}>
-          {resources.map((resource, index) => {
-            const rowStyle = { ...styles.row, height: resourceElements[index].pixels }
-
-            return (
-              <div key={resource.id} style={rowStyle}>
-                {resourceAxis.columns.map((column) => {
-                  return (
-                    <div key={column.name} style={styles.column}>
-                      {column.renderer(resource, dragContext.hoveredResource === resource, dragContext.originalResource === resource)}
-                    </div>
-                  )
-                })}
+              <div style={{ ...styles.body, width: this.props.viewConfig.resourceAxis.width }}>
+                <AutoSizer disableWidth>
+                  {({ height }) => {
+                    return (
+                      <Grid
+                        autoContainerWidth
+                        ref={this.grid}
+                        style={styles.bodyGrid}
+                        scrollTop={this.props.scrollTop}
+                        onScroll={onScroll}
+                        cellRenderer={this._renderResourceCell}
+                        columnCount={this.props.viewConfig.resourceAxis.columns.length}
+                        columnWidth={this._getColumnWidth}
+                        height={height}
+                        rowCount={this.props.resources.length}
+                        rowHeight={this._getResourceHeight}
+                        width={this.props.viewConfig.resourceAxis.width}
+                      />
+                    )
+                  }}
+                </AutoSizer>
               </div>
-            )
-          })}
-        </div>
-      </div>
+            </div>
+          )
+        }
+        }
+      </ScrollSync >
     )
   }
 }

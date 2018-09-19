@@ -62,7 +62,12 @@ class ViewDataProvider extends React.Component<ViewDataProviderProps, ViewDataPr
       resourceElements = result.resourceElements;
     }
 
-    if (props.assignments !== state.assignments || props.events !== state.events || props.resources !== state.resources) {
+    if (
+      props.assignments !== state.assignments ||
+      props.events !== state.events ||
+      props.resources !== state.resources ||
+      props.viewConfig.resourceAxis.row.layout !== state.viewConfig.resourceAxis.row.layout
+    ) {
       const result = getResourceElementsAndHeights(events, resources, assignments, viewConfig, ticksConfig, start, end);
       resourceAssignments = result.resourceAssignments;
       resourceElements = result.resourceElements;

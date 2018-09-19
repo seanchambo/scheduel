@@ -110,6 +110,7 @@ const config: ViewConfig = {
       header: {
         renderer: () => <div style={styles.resourceAxis.root}><span>Name</span></div>
       },
+      width: 150,
       name: 'Name',
       renderer: (resource: Resource, isOver: boolean, wasOriginal: boolean) => {
         const style = {
@@ -121,24 +122,13 @@ const config: ViewConfig = {
           <div style={style}><span>{resource.name}</span></div>
         )
       }
-    }, {
-      header: {
-        renderer: () => <div style={styles.resourceAxis.root}><span>Age</span></div>
-      },
-      name: 'Age',
-      renderer: (resource: Resource) => {
-        const style = { ...styles.resourceAxis.root, ...styles.resourceAxis.cell };
-        return (
-          <div style={style}><span>{resource.data && resource.data.age || ''}</span></div>
-        )
-      }
     }],
     row: {
       height: 100,
       padding: 5,
       layout: 'pack' as ResourceRowLayout,
     },
-    width: 300,
+    width: 150,
   },
   timeAxis: {
     major: {
