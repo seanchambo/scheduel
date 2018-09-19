@@ -91,6 +91,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                   cellRenderer={this._renderHeaderCell}
                   columnCount={this.props.viewConfig.resourceAxis.columns.length}
                   columnWidth={this._getColumnWidth}
+                  overscanColumnCount={10}
                   height={headerHeight}
                   rowCount={1}
                   rowHeight={headerHeight}
@@ -110,6 +111,8 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                         cellRenderer={this._renderResourceCell}
                         columnCount={this.props.viewConfig.resourceAxis.columns.length}
                         columnWidth={this._getColumnWidth}
+                        overscanColumnCount={10}
+                        overscanRowCount={10}
                         height={height}
                         rowCount={this.props.resources.length}
                         rowHeight={this._getResourceHeight}

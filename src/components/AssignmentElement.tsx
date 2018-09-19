@@ -34,7 +34,10 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
   endDrag(props, monitor, component) {
     const result = monitor.getDropResult();
 
-    if (!result) { props.dragContext.end(false, null) }
+    if (!result) {
+      props.dragContext.end(false, null)
+      return
+    }
 
     const cursorX = result.start.x - props.viewConfig.resourceAxis.width;
     const cursorOffset = cursorX - props.element.startX;

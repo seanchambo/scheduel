@@ -8,7 +8,7 @@ const styles = {
     display: 'flex',
   },
   axis: {
-    overflow: 'hidden',
+    overflowX: 'hidden' as 'hidden',
   },
 }
 
@@ -62,34 +62,39 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
 
   render() {
     const height = this.props.timeAxisConfig.major.height + this.props.timeAxisConfig.minor.height;
+    const maxWidth = this.props.timeAxisConfig.minor.width * this.props.ticksConfig.minor.length;
     return (
       <AutoSizer disableHeight>
         {({ width }) => {
+          const actualWidth = maxWidth < width ? maxWidth : width;
+
           return (
             <div style={{ width: width, height }}>
               <Grid
                 ref={this.majorGrid}
-                style={styles.axis}
+                style={{ ...styles.axis }}
                 scrollLeft={this.props.scrollLeft}
                 cellRenderer={this._renderMajorCell}
                 columnCount={this.props.ticksConfig.major.length}
                 columnWidth={this._getMajorColumnWidth}
                 height={this.props.timeAxisConfig.major.height}
+                overscanColumnCount={10}
                 rowCount={1}
                 rowHeight={this.props.timeAxisConfig.major.height}
-                width={width}
+                width={actualWidth}
               />
               <Grid
                 ref={this.minorGrid}
-                style={styles.axis}
+                style={{ ...styles.axis }}
                 scrollLeft={this.props.scrollLeft}
                 cellRenderer={this._renderMinorCell}
                 columnCount={this.props.ticksConfig.minor.length}
                 columnWidth={this.props.timeAxisConfig.minor.width}
+                overscanColumnCount={10}
                 height={this.props.timeAxisConfig.minor.height}
                 rowCount={1}
                 rowHeight={this.props.timeAxisConfig.minor.height}
-                width={width}
+                width={actualWidth}
               />
             </div>
           )

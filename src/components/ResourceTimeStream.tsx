@@ -101,6 +101,7 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
               columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width}
               height={height}
               width={actualWidth}
+              overscanRowCount={10}
               cellRenderer={this._renderRow}
               rowHeight={this._getRowHeight}
               rowCount={resources.length}>
