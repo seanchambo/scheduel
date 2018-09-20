@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { ViewConfig, TicksConfig, Assignment, Event, ResourceAssignmentMap, Resource, ResourceElement } from '../models';
+
 import { getTicksConfig } from '../utils/ticks';
 import { getStartEndForTimeSpan } from '../utils/timeSpan';
 import { getResourceElementsAndHeights } from '../utils/dom';

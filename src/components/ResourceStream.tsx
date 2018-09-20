@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Grid, ScrollSync, AutoSizer } from 'react-virtualized';
+import { Grid } from 'react-virtualized/dist/commonjs/Grid';
+import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
 import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../models';
 

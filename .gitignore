@@ -5,4 +5,5 @@ lib/
 .DS_Store
 dist/
 coverage/
+stats.html
 

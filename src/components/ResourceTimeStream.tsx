@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Grid, AutoSizer, OnScrollCallback, defaultCellRangeRenderer } from 'react-virtualized';
+import { OnScrollCallback } from 'react-virtualized';
+import { Grid, defaultCellRangeRenderer } from 'react-virtualized/dist/commonjs/Grid';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
 import { ViewConfig, TicksConfig, Assignment, Resource, Event, DragContext, ResourceAssignmentMap, ResourceElement } from '../models';
 

@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
-import { DragContext, ViewConfig, ResourceElement, TicksConfig, Resource, EventDragPreviewRenderContext } from '../models';
+
+import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext } from '../models';
+
 import { getDateFromPosition, getCoordinatesForTimeSpan } from '../utils/dom';
 
 interface DragLayerProps {

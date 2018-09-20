@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 
 import { Assignment, Resource, Event, ViewConfig, ListenersConfig } from '../models';
 
@@ -14,7 +12,6 @@ interface SchedulerProps {
   listeners: ListenersConfig;
 }
 
-@DragDropContext(HTML5Backend)
 class Scheduler extends React.PureComponent<SchedulerProps> {
   public render() {
     return (

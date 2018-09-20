@@ -3,11 +3,13 @@ import builtins from 'rollup-plugin-node-builtins';
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import { uglify } from 'rollup-plugin-uglify';
+import visualizer from 'rollup-plugin-visualizer';
 
 const externals = [
   '^react$',
   '^react-dom$',
-  '^date-fns$',
+  '^react-dnd$',
+  '^react-dnd-html5-backend$',
 ]
 
 const externalRegex = new RegExp(externals.join('|'));
@@ -24,7 +26,8 @@ export default {
     globals: {
       react: 'React',
       'react-dom': 'ReactDOM',
-      'date-fns': 'dateFns',
+      'react-dnd': 'ReactDnD',
+      'react-dnd-html5-backend': 'ReactDnDHTML5Backend',
     },
   },
   external,
@@ -34,6 +37,7 @@ export default {
     commonjs({
       include: ['node_modules/**', 'lib/**/*.js']
     }),
+    visualizer(),
     babel({
       runtimeHelpers: true,
       exclude: 'node_modules/**'

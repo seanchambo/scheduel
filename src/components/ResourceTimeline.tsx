@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { DragSource, DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
+import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
 import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement } from '../models';
+
 import AssignmentElement from './AssignmentElement';
 
 interface ResourceTimelineProps {

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Grid, AutoSizer } from 'react-virtualized';
+import { Grid } from 'react-virtualized/dist/commonjs/Grid';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
 import { TicksConfig, TimeAxisConfig } from '../models';
 

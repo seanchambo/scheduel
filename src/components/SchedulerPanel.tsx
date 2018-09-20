@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { ScrollSync } from 'react-virtualized';
+import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 
 import { Assignment, Resource, Event, ViewConfig, ListenersConfig } from '../models';
+
 import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
 import DragContextProvider from './DragContextProvider';
