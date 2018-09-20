@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as format from 'date-fns/format'
 import Scheduler, { models, defaults } from 'scheduel';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 import colours from './constants/colours';
 import { generateData } from './generateData';
@@ -122,6 +124,7 @@ const timeAxes: { timeSpan: models.TimeSpanConfig, timeAxis: models.TimeAxisConf
   },
 }]
 
+@DragDropContext(HTML5Backend)
 class App extends React.Component {
   state = {
     zoomLevel: 1,
