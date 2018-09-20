@@ -9,7 +9,6 @@ const externals = [
   '^react$',
   '^react-dom$',
   '^react-dnd$',
-  '^react-dnd-html5-backend$',
 ]
 
 const externalRegex = new RegExp(externals.join('|'));
@@ -27,7 +26,6 @@ export default {
       react: 'React',
       'react-dom': 'ReactDOM',
       'react-dnd': 'ReactDnD',
-      'react-dnd-html5-backend': 'ReactDnDHTML5Backend',
     },
   },
   external,

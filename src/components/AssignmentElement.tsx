@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
+import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
 
 import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig } from '../models';
 
 import { getDateFromPosition } from '../utils/dom';
-import { getEmptyImage } from 'react-dnd-html5-backend';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
