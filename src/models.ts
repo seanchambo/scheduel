@@ -1,7 +1,15 @@
 import { ReactNode } from 'react';
+import { TimelineComponentProps } from './plugins/TimelinePlugin';
+import { Grid, Index } from 'react-virtualized';
+import { BasePlugin } from './plugins/BasePlugin';
 
 export declare type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
 export declare type ResourceRowLayout = "stack" | "pack" | "overlap";
+
+export declare type Plugin = BasePlugin<TimelineComponentProps>;
+export declare interface TimelinePluginComponent extends React.Component<TimelineComponentProps> {
+  grid: React.RefObject<Grid>;
+}
 
 export declare interface Event {
   id: number | string;
@@ -70,6 +78,7 @@ export declare interface Tick {
   unit: TimeUnit;
   width?: number;
   show: boolean;
+  type?: 'minor' | 'major';
 }
 
 export declare interface TicksConfig {

@@ -58,8 +58,14 @@ export const getTicksConfig = (start: Date, end: Date, timeAxisConfig: TimeAxisC
   const majorTicks = getTicksInRange(start, end, timeAxisConfig.major);
   const minorTicks = getTicksInRange(start, end, timeAxisConfig.minor);
 
-  minorTicks.forEach(tick => tick.width = timeAxisConfig.minor.width);
-  majorTicks.forEach(tick => tick.width = getMajorTickWidth(tick, timeAxisConfig.minor));
+  minorTicks.forEach(tick => {
+    tick.width = timeAxisConfig.minor.width
+    tick.type = 'minor';
+  });
+  majorTicks.forEach(tick => {
+    tick.width = getMajorTickWidth(tick, timeAxisConfig.minor)
+    tick.type = 'major';
+  });
 
   return { major: majorTicks, minor: minorTicks };
 }

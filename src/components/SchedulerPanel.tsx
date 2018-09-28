@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 
-import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext } from '../models';
+import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext, Plugin, TimelinePluginComponent } from '../models';
 
 import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
 import DragContextProvider from './DragContextProvider';
 import TimeHeader from './TimeHeader';
 import DragLayer from './DragLayer';
-import ResourceTimeStream from './ResourceTimeStream';
+import ResourceAssignmentTimelinePlugin from '../plugins/ResourceAssignmentTimelinePlugin';
+import { TimelineComponentProps } from '../plugins/TimelinePlugin';
 
 interface SchedulerPanelProps {
   assignments: Assignment[];
@@ -17,6 +18,7 @@ interface SchedulerPanelProps {
   viewConfig: ViewConfig;
   externalDragContext: ExternalDragContext;
   listeners: ListenersConfig;
+  plugins: Plugin[];
 }
 
 const styles = {
@@ -31,22 +33,33 @@ const styles = {
     display: 'flex',
     flexDirection: 'column' as 'column',
   },
-  resourceStream: {
+  timelineBody: {
     display: 'flex',
     flex: 1,
     flexDirection: 'column' as 'column',
     position: 'relative' as 'relative',
     overflow: 'hidden' as 'hidden',
   },
-  timeHeaderStyle: {
+  timeHeader: {
     overflow: 'hidden' as 'hidden',
   },
 }
 
 class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
-  resourceTimeStream: React.RefObject<ResourceTimeStream> = React.createRef();
+  resourceTimeStream: React.RefObject<TimelinePluginComponent> = React.createRef();
   viewDataProvider: React.RefObject<ViewDataProvider> = React.createRef();
   dragContextProvider: React.RefObject<DragContextProvider> = React.createRef();
+  pluginComponents: React.ComponentClass<TimelineComponentProps>[];
+  resourceAssignmentTimelineComponent: React.ComponentClass<TimelineComponentProps>;
+
+  constructor(props: SchedulerPanelProps) {
+    super(props);
+
+    const resourceAssignmentTimelinePlugin = new ResourceAssignmentTimelinePlugin();
+    this.resourceAssignmentTimelineComponent = resourceAssignmentTimelinePlugin.createComponentClass();
+    this.pluginComponents = props.plugins.map(plugin => plugin.createComponentClass());
+    console.log(this.pluginComponents);
+  }
 
   componentDidUpdate(prevProps: SchedulerPanelProps) {
     if (this.props.externalDragContext !== prevProps.externalDragContext) {
@@ -64,7 +77,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
           <DragContextProvider ref={this.dragContextProvider} listeners={listeners}>
             {(dragContext) => {
               const timeHeaderStyle = {
-                ...styles.timeHeaderStyle,
+                ...styles.timeHeader,
                 height: viewConfig.timeAxis.major.height + viewConfig.timeAxis.minor.height,
               }
 
@@ -96,20 +109,42 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                               ticksConfig={ticksConfig}
                               timeAxisConfig={viewConfig.timeAxis} />
                           </div>
-                          <div style={styles.resourceStream}>
-                            <ResourceTimeStream
-                              {...this.props}
+                          <div style={styles.timelineBody}>
+                            <this.resourceAssignmentTimelineComponent
                               ref={this.resourceTimeStream}
                               onScroll={onScroll}
                               scrollLeft={scrollLeft}
                               scrollTop={scrollTop}
                               start={start}
                               end={end}
+                              resources={resources}
+                              events={events}
+                              assignments={assignments}
                               resourceAssignments={resourceAssignments}
                               resourceElements={resourceElements}
                               ticksConfig={ticksConfig}
+                              viewConfig={viewConfig}
                               externalDragContext={externalDragContext}
                               dragContext={dragContext} />
+                            {
+                              this.pluginComponents.map((PluginComponent) =>
+                                <PluginComponent
+                                  onScroll={onScroll}
+                                  scrollLeft={scrollLeft}
+                                  scrollTop={scrollTop}
+                                  start={start}
+                                  end={end}
+                                  resources={resources}
+                                  events={events}
+                                  assignments={assignments}
+                                  resourceAssignments={resourceAssignments}
+                                  resourceElements={resourceElements}
+                                  ticksConfig={ticksConfig}
+                                  viewConfig={viewConfig}
+                                  externalDragContext={externalDragContext}
+                                  dragContext={dragContext} />
+                              )
+                            }
                           </div>
                         </div>
                       </div>
@@ -119,7 +154,8 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
               )
             }}
           </DragContextProvider>
-        )}
+        )
+        }
       </ViewDataProvider>
     )
   }

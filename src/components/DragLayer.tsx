@@ -2,11 +2,10 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
 
-import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext } from '../models';
+import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext, TimelinePluginComponent } from '../models';
 
 import { getDateFromPosition, getCoordinatesForTimeSpan } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
-import ResourceTimelineStream from './ResourceTimeStream';
 
 interface DragLayerProps {
   item?: any;
@@ -15,7 +14,7 @@ interface DragLayerProps {
   isDragging?: boolean;
   dragContext: DragContext;
   externalDragContext: ExternalDragContext;
-  resourceTimeStream: React.RefObject<ResourceTimelineStream>;
+  resourceTimeStream: React.RefObject<TimelinePluginComponent>;
   viewConfig: ViewConfig;
   ticksConfig: TicksConfig;
   start: Date;

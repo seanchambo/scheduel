@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext } from '../models';
+import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext, Plugin } from '../models';
 
 import SchedulerPanel from './SchedulerPanel';
 
@@ -11,6 +11,7 @@ interface SchedulerProps {
   viewConfig: ViewConfig;
   externalDragContext: ExternalDragContext;
   listeners: ListenersConfig;
+  plugins: Plugin[];
 }
 
 class Scheduler extends React.PureComponent<SchedulerProps> {

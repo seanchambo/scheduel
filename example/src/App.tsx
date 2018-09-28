@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as format from 'date-fns/format'
-import Scheduler, { models, defaults, ExternalDragContextProvider } from 'scheduel';
+import Scheduler, { models, defaults, ExternalDragContextProvider, plugins } from 'scheduel';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
@@ -220,6 +220,7 @@ class App extends React.Component {
                   resources={this.state.resources}
                   events={this.state.events}
                   externalDragContext={externalDragContext}
+                  plugins={[new plugins.TicksTimelinePlugin()]}
                   listeners={{ ...defaults.listeners, assignments: { ...defaults.listeners.assignments, drop: this.updateEvent } }}
                   viewConfig={{ ...config, timeSpan: timeAxes[this.state.zoomLevel].timeSpan, timeAxis: timeAxes[this.state.zoomLevel].timeAxis }} />
               </div>
