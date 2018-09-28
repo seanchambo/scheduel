@@ -46,6 +46,7 @@
     "build": "rm -rf dist lib && tsc && rollup -c"
   },
   "dependencies": {
+    "dom-helpers": "^3.3.1",
     "react-virtualized": "^9.20.1"
   }
 }

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Grid } from 'react-virtualized/dist/commonjs/Grid';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+const scrollbarSize = require('dom-helpers/util/scrollbarSize');
+
 
 import { TicksConfig, TimeAxisConfig } from '../models';
 
@@ -33,6 +35,10 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
   _renderMajorCell = ({ columnIndex, key, style }) => {
     const tick = this.props.ticksConfig.major[columnIndex];
 
+    if (columnIndex === this.props.ticksConfig.major.length) {
+      return <div style={style} key={key} />
+    }
+
     return (
       <div style={{ ...style, ...styles.cell, height: this.props.timeAxisConfig.major.height }} key={key}>
         {this.props.timeAxisConfig.major.renderer(tick)}
@@ -43,6 +49,10 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
   _renderMinorCell = ({ columnIndex, key, style }) => {
     const tick = this.props.ticksConfig.minor[columnIndex];
 
+    if (columnIndex === this.props.ticksConfig.minor.length) {
+      return <div style={style} key={key} />
+    }
+
     return (
       <div style={{ ...style, ...styles.cell, height: this.props.timeAxisConfig.minor.height }} key={key}>
         {this.props.timeAxisConfig.minor.renderer(tick)}
@@ -51,7 +61,13 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
   }
 
   _getMajorColumnWidth = ({ index }) => {
+    if (index === this.props.ticksConfig.major.length) { return scrollbarSize(); }
     return this.props.ticksConfig.major[index].width;
+  }
+
+  _getMinorColumnWidth = ({ index }) => {
+    if (index === this.props.ticksConfig.minor.length) { return scrollbarSize(); }
+    return this.props.ticksConfig.minor[index].width;
   }
 
   render() {
@@ -63,13 +79,13 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
           const actualWidth = maxWidth < width ? maxWidth : width;
 
           return (
-            <div style={{ width: width, height }}>
+            <div style={{ width: actualWidth, height }}>
               <Grid
                 ref={this.majorGrid}
                 style={{ ...styles.axis }}
                 scrollLeft={this.props.scrollLeft}
                 cellRenderer={this._renderMajorCell}
-                columnCount={this.props.ticksConfig.major.length}
+                columnCount={this.props.ticksConfig.major.length + 1}
                 columnWidth={this._getMajorColumnWidth}
                 height={this.props.timeAxisConfig.major.height}
                 overscanColumnCount={10}
@@ -82,8 +98,8 @@ class TimeHeader extends React.PureComponent<TimeHeaderProps> {
                 style={{ ...styles.axis }}
                 scrollLeft={this.props.scrollLeft}
                 cellRenderer={this._renderMinorCell}
-                columnCount={this.props.ticksConfig.minor.length}
-                columnWidth={this.props.timeAxisConfig.minor.width}
+                columnCount={this.props.ticksConfig.minor.length + 1}
+                columnWidth={this._getMinorColumnWidth}
                 overscanColumnCount={10}
                 height={this.props.timeAxisConfig.minor.height}
                 rowCount={1}

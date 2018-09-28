@@ -70,9 +70,7 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
     };
 
     return connectDragSource(
-      <div
-        key={element.event.id}
-        style={style}>
+      <div style={style}>
         {this.props.viewConfig.renderers.events.assignment(element.event, element.assignment, resource)}
       </div>
     )

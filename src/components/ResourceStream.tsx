@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Grid } from 'react-virtualized/dist/commonjs/Grid';
 import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+const scrollbarSize = require('dom-helpers/util/scrollbarSize');
+
 
 import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap, ExternalDragContext } from '../models';
 
@@ -63,6 +65,10 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
     const isOver = this.props.dragContext.hoveredResource === resource || this.props.externalDragContext.hoveredResource === resource;
     const wasOriginal = this.props.dragContext.originalResource === resource;
 
+    if (rowIndex === this.props.resources.length) {
+      return <div key={key} style={{ ...style, ...styles.cell, height: scrollbarSize() }} />
+    }
+
     return (
       <div style={{ ...style, ...styles.cell }} key={key}>
         {column.renderer(resource, isOver, wasOriginal)}
@@ -75,6 +81,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   }
 
   _getResourceHeight = ({ index }) => {
+    if (index === this.props.resources.length) { return scrollbarSize(); }
     return this.props.resourceElements[index].pixels;
   }
 
@@ -104,7 +111,6 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                   {({ height }) => {
                     return (
                       <Grid
-                        autoContainerWidth
                         ref={this.grid}
                         style={styles.bodyGrid}
                         scrollTop={this.props.scrollTop}
@@ -115,7 +121,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                         overscanColumnCount={10}
                         overscanRowCount={10}
                         height={height}
-                        rowCount={this.props.resources.length}
+                        rowCount={this.props.resources.length + 1}
                         rowHeight={this._getResourceHeight}
                         width={this.props.viewConfig.resourceAxis.width}
                       />

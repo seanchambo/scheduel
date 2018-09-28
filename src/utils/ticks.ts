@@ -45,7 +45,7 @@ export const getMajorTickWidth = (tick: Tick, minorTimeAxisConfig: MinorTimeAxis
     if (nextStart >= end) {
       const remaining = end.getTime() - start.getTime();
       const ratio = remaining / (nextStart.getTime() - start.getTime());
-      width += Math.round(ratio * minorWidth);
+      width += ratio * minorWidth;
       return width;
     }
 

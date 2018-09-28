@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { OnScrollCallback } from 'react-virtualized';
-import { Grid, defaultCellRangeRenderer } from 'react-virtualized/dist/commonjs/Grid';
+import { Grid } from 'react-virtualized/dist/commonjs/Grid';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
 import { ViewConfig, TicksConfig, Assignment, Resource, Event, DragContext, ResourceAssignmentMap, ResourceElement, ExternalDragContext } from '../models';
@@ -100,10 +100,9 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
                 ref={this.grid}
                 onScroll={this.props.onScroll}
                 columnCount={1}
-                columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width - 8}
+                columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width}
                 height={height}
                 width={actualWidth}
-                style={{ marginRight: 8 }}
                 overscanRowCount={10}
                 cellRenderer={this._renderRow}
                 rowHeight={this._getRowHeight}

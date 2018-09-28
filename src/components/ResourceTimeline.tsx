@@ -73,7 +73,7 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
       height: this.props.height.pixels,
       // paddingTop: this.props.viewConfig.resourceAxis.row.padding,
       // paddingBottom: this.props.viewConfig.resourceAxis.row.padding,
-      width: this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width - 8,
+      width: '100%',
     };
 
     return this.props.connectAssignmentDropTarget(

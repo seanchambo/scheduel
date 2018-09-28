@@ -1,4 +1,5 @@
 import * as React from 'react';
+const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
 import { TicksConfig, ViewConfig, ResourceElement } from '../models';
 
@@ -28,8 +29,8 @@ const styles = {
 
 class TickStream extends React.PureComponent<TickStreamProps> {
   render() {
-    const height = this.props.resourceElements.reduce((acc, element) => acc + element.pixels, 0);
-    const width = this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width;
+    const height = this.props.resourceElements.reduce((acc, element) => acc + element.pixels, 0) + scrollbarSize();
+    const width = this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width + scrollbarSize();
     const rootStyle = { ...styles.root, height, width }
 
     let minorLeft: number = 0;
