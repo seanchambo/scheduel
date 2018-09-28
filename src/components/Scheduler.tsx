@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Assignment, Resource, Event, ViewConfig, ListenersConfig } from '../models';
+import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext } from '../models';
 
 import SchedulerPanel from './SchedulerPanel';
 
@@ -9,6 +9,7 @@ interface SchedulerProps {
   resources: Resource[];
   events: Event[];
   viewConfig: ViewConfig;
+  externalDragContext: ExternalDragContext;
   listeners: ListenersConfig;
 }
 

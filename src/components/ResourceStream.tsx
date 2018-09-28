@@ -3,12 +3,13 @@ import { Grid } from 'react-virtualized/dist/commonjs/Grid';
 import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
-import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap } from '../models';
+import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap, ExternalDragContext } from '../models';
 
 interface ResourceStreamProps {
   resources: Resource[];
   viewConfig: ViewConfig;
   dragContext: DragContext;
+  externalDragContext: ExternalDragContext;
   resourceElements: ResourceElement[];
   resourceAssignments: ResourceAssignmentMap;
   scrollTop: number;
@@ -32,13 +33,7 @@ const styles = {
 }
 
 class ResourceStream extends React.PureComponent<ResourceStreamProps> {
-  grid: React.RefObject<Grid>
-
-  constructor(props) {
-    super(props);
-
-    this.grid = React.createRef();
-  }
+  grid: React.RefObject<Grid> = React.createRef()
 
   componentDidUpdate(prevProps: ResourceStreamProps) {
     if (this.props.resourceElements !== prevProps.resourceElements) {
@@ -46,7 +41,11 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
     }
 
     if (this.props.dragContext !== prevProps.dragContext) {
-      this.grid.current.forceUpdate()
+      this.grid.current.forceUpdate();
+    }
+
+    if (this.props.externalDragContext !== prevProps.externalDragContext) {
+      this.grid.current.forceUpdate();
     }
   }
 
@@ -61,7 +60,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   _renderResourceCell = ({ rowIndex, columnIndex, style, key }) => {
     const resource = this.props.resources[rowIndex];
     const column = this.props.viewConfig.resourceAxis.columns[columnIndex];
-    const isOver = this.props.dragContext.hoveredResource === resource;
+    const isOver = this.props.dragContext.hoveredResource === resource || this.props.externalDragContext.hoveredResource === resource;
     const wasOriginal = this.props.dragContext.originalResource === resource;
 
     return (

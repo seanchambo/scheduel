@@ -1,18 +1,26 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
-import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement } from '../models';
+import { Resource, TicksConfig, ViewConfig, AssignmentElement as AssignmentElementInterface, DragContext, ResourceElement, ExternalDragContext } from '../models';
 
 import AssignmentElement from './AssignmentElement';
+import { getDateFromPosition } from '../utils/dom';
+import itemTypes from '../utils/itemTypes';
+import { Grid } from 'react-virtualized';
 
 interface ResourceTimelineProps {
+  grid: React.RefObject<Grid>
   resource: Resource;
   assignments: AssignmentElementInterface[];
   ticksConfig: TicksConfig;
   viewConfig: ViewConfig;
   dragContext: DragContext;
-  connectDropTarget?: ConnectDropTarget;
-  isOver?: boolean;
+  externalDragContext: ExternalDragContext;
+  connectAssignmentDropTarget?: ConnectDropTarget;
+  connectExternalDropTarget?: ConnectDropTarget;
+  isAssignmentOver?: boolean;
+  isExternalOver?: boolean;
   height: ResourceElement;
 }
 
@@ -21,23 +29,41 @@ const styles = {
     display: 'flex',
     flex: '1',
     position: 'relative' as 'relative',
+    overflow: 'hidden' as 'hidden',
   },
 };
 
 const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
   drop(props, monitor) {
-    return { finish: monitor.getSourceClientOffset(), start: monitor.getInitialSourceClientOffset() };
+    const finish = monitor.getSourceClientOffset();
+
+    const panel: Element = ReactDOM.findDOMNode(props.grid.current) as Element;
+    const xFromPanel = finish.x - panel.getBoundingClientRect().left;
+    const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
+    const date = getDateFromPosition(xFromSchedulerStart, props.ticksConfig.minor);
+
+    return {
+      resource: props.resource,
+      date,
+    };
   }
 }
 
-@DropTarget('assignment', resourceTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
+@DropTarget(itemTypes.Assignment, resourceTarget, (connect, monitor) => ({
+  connectAssignmentDropTarget: connect.dropTarget(),
+  isAssignmentOver: monitor.isOver(),
+}))
+@DropTarget(itemTypes.External, resourceTarget, (connect, monitor) => ({
+  connectExternalDropTarget: connect.dropTarget(),
+  isExternalOver: monitor.isOver(),
 }))
 class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   componentDidUpdate(prevProps: ResourceTimelineProps) {
-    if (this.props.isOver && !prevProps.isOver) {
+    if (this.props.isAssignmentOver && !prevProps.isAssignmentOver) {
       this.props.dragContext.update(this.props.resource);
+    }
+    if (this.props.isExternalOver && !prevProps.isExternalOver) {
+      this.props.externalDragContext.update(this.props.resource);
     }
   }
 
@@ -45,22 +71,24 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
     const rootStyle = {
       ...styles.root,
       height: this.props.height.pixels,
-      paddingTop: this.props.viewConfig.resourceAxis.row.padding,
-      paddingBottom: this.props.viewConfig.resourceAxis.row.padding,
-      width: this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width,
+      // paddingTop: this.props.viewConfig.resourceAxis.row.padding,
+      // paddingBottom: this.props.viewConfig.resourceAxis.row.padding,
+      width: this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width - 8,
     };
 
-    return this.props.connectDropTarget(
-      <div style={rootStyle}>
-        {this.props.assignments.map((element) =>
-          <AssignmentElement
-            key={element.assignment.id}
-            element={element}
-            ticksConfig={this.props.ticksConfig}
-            resource={this.props.resource}
-            dragContext={this.props.dragContext}
-            viewConfig={this.props.viewConfig} />)}
-      </div>
+    return this.props.connectAssignmentDropTarget(
+      this.props.connectExternalDropTarget(
+        <div style={rootStyle}>
+          {this.props.assignments.map((element) =>
+            <AssignmentElement
+              key={element.assignment.id}
+              element={element}
+              ticksConfig={this.props.ticksConfig}
+              resource={this.props.resource}
+              dragContext={this.props.dragContext}
+              viewConfig={this.props.viewConfig} />)}
+        </div>
+      )
     )
   }
 }

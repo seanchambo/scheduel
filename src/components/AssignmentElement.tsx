@@ -3,8 +3,8 @@ import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } fro
 import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
 
 import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig } from '../models';
+import itemTypes from '../utils/itemTypes';
 
-import { getDateFromPosition } from '../utils/dom';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
@@ -35,27 +35,19 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
     return { id: props.element.assignment.id }
   },
   endDrag(props, monitor, component) {
-    const result = monitor.getDropResult();
-
-    if (!result) {
+    if (monitor.didDrop()) {
+      const { date } = monitor.getDropResult();
+      props.dragContext.end(true, date);
+    } else {
       props.dragContext.end(false, null)
-      return
     }
-
-    const cursorX = result.start.x - props.viewConfig.resourceAxis.width;
-    const cursorOffset = cursorX - props.element.startX;
-
-    const finishX = result.finish.x - props.viewConfig.resourceAxis.width - cursorOffset;
-    const date = getDateFromPosition(finishX, props.ticksConfig.minor);
-
-    props.dragContext.end(true, date);
   },
   isDragging(props, monitor) {
     return monitor.getItem().id === props.element.assignment.id;
   }
 }
 
-@DragSource('assignment', assignmentSource, (connect, monitor) => ({
+@DragSource(itemTypes.Assignment, assignmentSource, (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
   connectDragPreview: connect.dragPreview(),
 }))
@@ -81,7 +73,7 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
       <div
         key={element.event.id}
         style={style}>
-        {this.props.viewConfig.events.renderer(element.event, element.assignment, resource)}
+        {this.props.viewConfig.renderers.events.assignment(element.event, element.assignment, resource)}
       </div>
     )
   }

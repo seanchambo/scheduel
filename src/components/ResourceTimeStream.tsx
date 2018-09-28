@@ -3,7 +3,7 @@ import { OnScrollCallback } from 'react-virtualized';
 import { Grid, defaultCellRangeRenderer } from 'react-virtualized/dist/commonjs/Grid';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 
-import { ViewConfig, TicksConfig, Assignment, Resource, Event, DragContext, ResourceAssignmentMap, ResourceElement } from '../models';
+import { ViewConfig, TicksConfig, Assignment, Resource, Event, DragContext, ResourceAssignmentMap, ResourceElement, ExternalDragContext } from '../models';
 
 import ResourceTimeline from './ResourceTimeline';
 import TickStream from './TickStream';
@@ -15,21 +15,19 @@ interface ResourceTimelineStreamProps {
   events: Event[];
   viewConfig: ViewConfig;
   dragContext: DragContext;
+  externalDragContext: ExternalDragContext;
   resourceAssignments: ResourceAssignmentMap;
   resourceElements: ResourceElement[];
   start: Date;
   end: Date;
   onScroll: OnScrollCallback;
+  scrollLeft: number;
+  scrollTop: number;
 }
 
 class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps> {
-  grid: React.RefObject<Grid>
-
-  constructor(props) {
-    super(props)
-
-    this.grid = React.createRef();
-  }
+  grid: React.RefObject<Grid> = React.createRef()
+  tickStreamContainer: React.RefObject<HTMLDivElement> = React.createRef()
 
   shouldComponentUpdate(nextProps: ResourceTimelineStreamProps) {
     if (this.props.ticksConfig !== nextProps.ticksConfig) return true;
@@ -41,6 +39,8 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
     if (this.props.resourceElements !== nextProps.resourceElements) return true;
     if (this.props.start !== nextProps.start) return true;
     if (this.props.end !== nextProps.end) return true
+    if (this.props.scrollLeft !== nextProps.scrollLeft) return true;
+    if (this.props.scrollTop !== nextProps.scrollTop) return true;
     return false;
   }
 
@@ -53,17 +53,14 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
       this.grid.current.measureAllCells();
       this.grid.current.recomputeGridSize();
     }
-  }
 
-  _addTicks = (props) => {
-    const children = defaultCellRangeRenderer(props);
-    children.push(
-      <TickStream
-        ticksConfig={this.props.ticksConfig}
-        viewConfig={this.props.viewConfig}
-        resourceElements={this.props.resourceElements}
-      />);
-    return children;
+    if (this.props.scrollLeft !== prevProps.scrollLeft) {
+      this.tickStreamContainer.current.scrollLeft = this.props.scrollLeft;
+    }
+
+    if (this.props.scrollTop !== prevProps.scrollTop) {
+      this.tickStreamContainer.current.scrollTop = this.props.scrollTop;
+    }
   }
 
   _renderRow = ({ rowIndex, key, style }) => {
@@ -72,11 +69,13 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
     const height = this.props.resourceElements[rowIndex];
 
     return (
-      <div key={key} style={style}>
+      <div key={key} style={{ ...style, overflow: 'hidden' }}>
         <ResourceTimeline
+          grid={this.grid}
           height={height}
           resource={resource}
           assignments={assignments}
+          externalDragContext={this.props.externalDragContext}
           viewConfig={this.props.viewConfig}
           ticksConfig={this.props.ticksConfig}
           dragContext={this.props.dragContext}
@@ -96,19 +95,26 @@ class ResourceTimelineStream extends React.Component<ResourceTimelineStreamProps
         {({ width, height }) => {
           const actualWidth = maxWidth < width ? maxWidth : width;
           return (
-            <Grid
-              ref={this.grid}
-              onScroll={this.props.onScroll}
-              columnCount={1}
-              columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width}
-              height={height}
-              width={actualWidth}
-              overscanRowCount={10}
-              cellRenderer={this._renderRow}
-              rowHeight={this._getRowHeight}
-              rowCount={resources.length}>
-              <div id="test"></div>
-            </Grid>
+            <React.Fragment>
+              <Grid
+                ref={this.grid}
+                onScroll={this.props.onScroll}
+                columnCount={1}
+                columnWidth={this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width - 8}
+                height={height}
+                width={actualWidth}
+                style={{ marginRight: 8 }}
+                overscanRowCount={10}
+                cellRenderer={this._renderRow}
+                rowHeight={this._getRowHeight}
+                rowCount={resources.length} />
+              <div ref={this.tickStreamContainer} style={{ width: actualWidth, height, overflow: 'hidden', position: 'absolute', top: 0, left: 0, zIndex: -1 }}>
+                <TickStream
+                  viewConfig={this.props.viewConfig}
+                  ticksConfig={this.props.ticksConfig}
+                  resourceElements={this.props.resourceElements} />
+              </div>
+            </React.Fragment>
           )
         }}
       </AutoSizer>

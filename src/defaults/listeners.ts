@@ -1,8 +1,14 @@
 import { ListenersConfig } from '../models';
 
 const listeners: ListenersConfig = {
-  assignmentdrop: () => { },
-  assignmentdrag: () => { },
+  assignments: {
+    drag: () => { },
+    drop: () => { },
+  },
+  external: {
+    drag: () => { },
+    drop: () => { },
+  }
 }
 
 export default listeners

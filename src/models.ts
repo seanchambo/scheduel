@@ -18,7 +18,16 @@ export declare interface DragContext {
   draggedAssignment: Assignment;
   start: (assignment: Assignment, event: Event, resource: Resource) => void;
   update: (resource: Resource) => void;
-  end: (successful: boolean, start: Date) => void
+  end: (successful: boolean, start: Date | null) => void;
+}
+
+export declare interface ExternalDragContext {
+  dragging: boolean;
+  item: any;
+  hoveredResource: Resource;
+  start: (item: any) => void;
+  update: (resource: Resource) => void;
+  end: (successful: boolean, start: Date | null) => void;
 }
 
 export declare interface ResourceElement {
@@ -72,31 +81,32 @@ export declare interface ViewConfig {
   timeAxis: TimeAxisConfig;
   resourceAxis: ResourceAxisConfig;
   timeSpan: TimeSpanConfig;
-  ticks: TicksViewConfig;
-  events: EventsViewConfig;
+  renderers: RendererConfig;
 }
 
-export declare interface ListenersConfig {
-  assignmentdrop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date, originalResource: Resource) => void;
-  assignmentdrag: (assignment: Assignment, resource: Resource, event: Event) => void;
-}
-
-export declare interface EventsViewConfig {
-  renderer: (event: Event, assignment: Assignment, resource: Resource) => ReactNode;
-  preview: {
-    renderer: (context: EventDragPreviewRenderContext) => ReactNode;
+export declare interface RendererConfig {
+  events: {
+    preview: (context: EventDragPreviewRenderContext) => ReactNode;
+    assignment: (event: Event, assignment: Assignment, resource: Resource) => ReactNode;
+  },
+  ticks: {
+    major: (tick: Tick) => ReactNode;
+    minor: (tick: Tick) => ReactNode;
+    resource: (resource: Resource) => ReactNode;
+  },
+  external: {
+    preview: (context: ExternalDragPreviewRenderContext) => ReactNode;
   }
 }
 
-export declare interface TicksViewConfig {
-  major: {
-    renderer: (tick: Tick) => ReactNode,
+export declare interface ListenersConfig {
+  assignments: {
+    drag: (assignment: Assignment, resource: Resource, event: Event) => void;
+    drop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date, originalResource: Resource) => void;
   },
-  minor: {
-    renderer: (tick: Tick) => ReactNode,
-  },
-  resource: {
-    renderer: (resource: Resource) => ReactNode,
+  external: {
+    drag: (item: any) => void;
+    drop: (item: any, resource: Resource, startTime: Date) => void;
   }
 }
 
@@ -104,6 +114,14 @@ export declare interface EventDragPreviewRenderContext {
   assignment: Assignment;
   event: Event;
   originalResource: Resource;
+  hoveredResource: Resource;
+  start: Date;
+  getWidthForEnd: (end: Date) => number;
+  style: React.CSSProperties;
+}
+
+export declare interface ExternalDragPreviewRenderContext {
+  item: any;
   hoveredResource: Resource;
   start: Date;
   getWidthForEnd: (end: Date) => number;

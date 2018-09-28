@@ -1,11 +1,12 @@
 import * as React from 'react';
 import * as format from 'date-fns/format'
-import Scheduler, { models, defaults } from 'scheduel';
+import Scheduler, { models, defaults, ExternalDragContextProvider } from 'scheduel';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
 import colours from './constants/colours';
 import { generateData } from './generateData';
+import ExternalDragItem from './ExternalDragItem';
 
 const styles = {
   timeAxis: {
@@ -150,6 +151,16 @@ class App extends React.Component {
     this.setState({ assignments: newAssignments, events: newEvents });
   }
 
+  dropExternalItem = (item: any, resource: models.Resource, date: Date) => {
+    const eventId = this.state.events.length;
+    const assignmentId = this.state.assignments.length;
+    const endTime = new Date(date.getTime() + 3000000000);
+    const newAssignments = [...this.state.assignments, { eventId, resourceId: resource.id, id: assignmentId }];
+    const newEvents = [...this.state.events, { id: eventId, startTime: new Date(date), endTime, data: { name: `Event ${eventId}` } }];
+
+    this.setState({ assignments: newAssignments, events: newEvents });
+  }
+
   zoomIn = () => {
     if (this.state.zoomLevel - 1 >= 0) {
       this.setState({ zoomLevel: this.state.zoomLevel - 1 });
@@ -173,7 +184,6 @@ class App extends React.Component {
   }
 
   public render() {
-    console.log(this.state.assignments, this.state.events, this.state.resources);
     const config = {
       ...defaults.viewConfig,
       resourceAxis: {
@@ -186,30 +196,38 @@ class App extends React.Component {
     }
 
     return (
-      <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ height: 42, padding: 8, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-          <div style={{ width: 150, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <button onClick={this.zoomIn}>Zoom In</button>
-            <button onClick={this.zoomOut}>Zoom Out</button>
-          </div>
-          <div style={{ width: 75, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <button onClick={this.regenerate}>Regenerate</button>
-          </div>
-          <div style={{ width: 225, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-            <button onClick={this.setLayout('stack')}>Stack</button>
-            <button onClick={this.setLayout('overlap')}>Overlap</button>
-            <button onClick={this.setLayout('pack')}>Pack</button>
-          </div>
-        </div>
-        <div style={{ flex: 1, width: '100%' }}>
-          <Scheduler
-            assignments={this.state.assignments}
-            resources={this.state.resources}
-            events={this.state.events}
-            listeners={{ ...defaults.listeners, assignmentdrop: this.updateEvent }}
-            viewConfig={{ ...config, timeSpan: timeAxes[this.state.zoomLevel].timeSpan, timeAxis: timeAxes[this.state.zoomLevel].timeAxis }} />
-        </div>
-      </div>
+      <ExternalDragContextProvider listeners={{ ...defaults.listeners, external: { ...defaults.listeners.external, drop: this.dropExternalItem } }}>
+        {(externalDragContext: models.ExternalDragContext) => {
+          return (
+            <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 42, padding: 8, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                <div style={{ width: 150, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <button onClick={this.zoomIn}>Zoom In</button>
+                  <button onClick={this.zoomOut}>Zoom Out</button>
+                </div>
+                <div style={{ width: 75, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <button onClick={this.regenerate}>Regenerate</button>
+                </div>
+                <div style={{ width: 225, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                  <button onClick={this.setLayout('stack')}>Stack</button>
+                  <button onClick={this.setLayout('overlap')}>Overlap</button>
+                  <button onClick={this.setLayout('pack')}>Pack</button>
+                </div>
+              </div>
+              <div style={{ flex: 1, width: '100%' }}>
+                <Scheduler
+                  assignments={this.state.assignments}
+                  resources={this.state.resources}
+                  events={this.state.events}
+                  externalDragContext={externalDragContext}
+                  listeners={{ ...defaults.listeners, assignments: { ...defaults.listeners.assignments, drop: this.updateEvent } }}
+                  viewConfig={{ ...config, timeSpan: timeAxes[this.state.zoomLevel].timeSpan, timeAxis: timeAxes[this.state.zoomLevel].timeAxis }} />
+              </div>
+              <ExternalDragItem externalDragContext={externalDragContext} />
+            </div>
+          )
+        }}
+      </ExternalDragContextProvider>
     );
   }
 }

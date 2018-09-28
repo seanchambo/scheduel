@@ -10,9 +10,8 @@ interface TickStreamProps {
 
 const styles = {
   root: {
-    height: '100%',
-    width: '100%',
     zIndex: -1,
+    position: 'relative' as 'relative',
   },
   timeTick: {
     position: 'absolute' as 'absolute',
@@ -29,17 +28,22 @@ const styles = {
 
 class TickStream extends React.PureComponent<TickStreamProps> {
   render() {
+    const height = this.props.resourceElements.reduce((acc, element) => acc + element.pixels, 0);
+    const width = this.props.ticksConfig.minor.length * this.props.viewConfig.timeAxis.minor.width;
+    const rootStyle = { ...styles.root, height, width }
+
     let minorLeft: number = 0;
     let majorLeft: number = 0;
+
     return (
-      <div style={styles.root}>
+      <div style={rootStyle}>
         {
           this.props.ticksConfig.major.map((tick) => {
             majorLeft += tick.width;
             if (!tick.show) { return null; }
             return (
               <div style={{ ...styles.timeTick, left: majorLeft }} key={`${tick.startTime.getTime()}-major-tick`}>
-                {this.props.viewConfig.ticks.major.renderer(tick)}
+                {this.props.viewConfig.renderers.ticks.major(tick)}
               </div>
             )
           })
@@ -50,7 +54,7 @@ class TickStream extends React.PureComponent<TickStreamProps> {
             if (!tick.show) { return null; }
             return (
               <div style={{ ...styles.timeTick, left: minorLeft }} key={`${tick.startTime.getTime()}-minor-tick`}>
-                {this.props.viewConfig.ticks.minor.renderer(tick)}
+                {this.props.viewConfig.renderers.ticks.minor(tick)}
               </div>
             )
           })
@@ -59,7 +63,7 @@ class TickStream extends React.PureComponent<TickStreamProps> {
           this.props.resourceElements.map((element) => {
             return (
               <div style={{ ...styles.resourceTick, top: element.top + element.pixels }} key={`${element.resource.id}-resource-tick`}>
-                {this.props.viewConfig.ticks.resource.renderer(element.resource)}
+                {this.props.viewConfig.renderers.ticks.resource(element.resource)}
               </div>
             )
           })

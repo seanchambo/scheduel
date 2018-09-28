@@ -85,6 +85,7 @@ export const getResourceElementsAndHeights = (
     if (!event) { continue; }
 
     const resource = resourceMap[assignment.resourceId];
+    if (!resource) { continue; }
 
     const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
 

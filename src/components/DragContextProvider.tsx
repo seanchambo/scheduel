@@ -3,14 +3,11 @@ import * as React from 'react';
 import { Event, Assignment, Resource, DragContext, ListenersConfig } from '../models';
 
 interface DragContextProviderProps {
-  events: Event[];
-  assignments: Assignment[];
-  resources: Resource[];
   children: (dragContext: DragContext) => React.ReactNode;
   listeners: ListenersConfig;
 }
 
-class DragContextProvider extends React.PureComponent<DragContextProviderProps, DragContext> {
+class DragContextProvider extends React.Component<DragContextProviderProps, DragContext> {
   constructor(props) {
     super(props);
 
@@ -27,7 +24,7 @@ class DragContextProvider extends React.PureComponent<DragContextProviderProps, 
   }
 
   start = (assignment: Assignment, event: Event, resource: Resource) => {
-    this.props.listeners.assignmentdrag(this.state.draggedAssignment, this.state.originalResource, this.state.draggedEvent);
+    this.props.listeners.assignments.drag(assignment, resource, event);
     this.setState({ dragging: true, draggedAssignment: assignment, draggedEvent: event, originalResource: resource });
   }
 
@@ -37,7 +34,7 @@ class DragContextProvider extends React.PureComponent<DragContextProviderProps, 
 
   end = (successful: boolean, start: Date) => {
     if (successful) {
-      this.props.listeners.assignmentdrop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
+      this.props.listeners.assignments.drop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
     }
     this.setState({ dragging: false, draggedAssignment: null, hoveredResource: null, draggedEvent: null, originalResource: null });
   }

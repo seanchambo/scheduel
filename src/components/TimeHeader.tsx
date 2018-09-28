@@ -20,15 +20,8 @@ interface TimeHeaderProps {
 }
 
 class TimeHeader extends React.PureComponent<TimeHeaderProps> {
-  minorGrid: React.RefObject<Grid>
-  majorGrid: React.RefObject<Grid>
-
-  constructor(props) {
-    super(props);
-
-    this.majorGrid = React.createRef();
-    this.minorGrid = React.createRef();
-  }
+  minorGrid: React.RefObject<Grid> = React.createRef()
+  majorGrid: React.RefObject<Grid> = React.createRef()
 
   componentDidUpdate(prevProps: TimeHeaderProps) {
     if (this.props.ticksConfig !== prevProps.ticksConfig) {

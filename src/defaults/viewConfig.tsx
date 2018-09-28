@@ -93,25 +93,23 @@ const styles = {
   },
 };
 
-const eventRenderer = (event: Event, style: React.CSSProperties) => {
-
-
+const eventRenderer = (event: any, style: React.CSSProperties) => {
   return <div style={style}><div style={styles.events.inner}>{event.data && event.data.name || ''}</div></div>
 }
 
 const config: ViewConfig = {
-  events: {
-    renderer: (event, assignment) => {
-      const style = {
-        ...styles.events.root,
-        backgroundColor: event.data && event.data.colour || styles.events.root.background,
-        borderColor: event.data && event.data.colour || styles.events.root.background,
-      };
+  renderers: {
+    events: {
+      assignment: (event, assignment) => {
+        const style = {
+          ...styles.events.root,
+          backgroundColor: event.data && event.data.colour || styles.events.root.background,
+          borderColor: event.data && event.data.colour || styles.events.root.background,
+        };
 
-      return eventRenderer(event, style)
-    },
-    preview: {
-      renderer: ({ event, assignment, hoveredResource, start, getWidthForEnd, style }) => {
+        return eventRenderer(event, style)
+      },
+      preview: ({ event, assignment, hoveredResource, start, getWidthForEnd, style }) => {
         const duration = event.endTime.getTime() - event.startTime.getTime();
         const end = new Date(start.getTime() + duration);
         const width = getWidthForEnd(end);
@@ -122,6 +120,28 @@ const config: ViewConfig = {
         }
 
         return eventRenderer(event, newStyles);
+      }
+    },
+    ticks: {
+      major: () => <div style={styles.ticks.major} />,
+      minor: () => <div style={styles.ticks.minor} />,
+      resource: () => <div style={styles.ticks.resource} />,
+    },
+    external: {
+      preview: ({ item, start, getWidthForEnd, style }) => {
+        const data = { data: { name: 'External Item' } };
+        const duration = 3000000000;
+        const end = new Date(start.getTime() + duration);
+        const width = getWidthForEnd(end);
+        console.log(start, end);
+        console.log(width);
+        const newStyles = {
+          ...style,
+          ...styles.events.root,
+          width,
+        }
+
+        return eventRenderer(data, newStyles);
       }
     }
   },
@@ -179,17 +199,6 @@ const config: ViewConfig = {
     duration: 3,
     startTime: new Date(),
     unit: 'months' as 'months'
-  },
-  ticks: {
-    major: {
-      renderer: () => <div style={styles.ticks.major} />
-    },
-    minor: {
-      renderer: () => <div style={styles.ticks.minor} />
-    },
-    resource: {
-      renderer: () => <div style={styles.ticks.resource} />
-    }
   },
 }
 
