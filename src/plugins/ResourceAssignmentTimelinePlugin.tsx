@@ -37,6 +37,7 @@ class ResourceAssignmentTimelinePlugin extends TimelinePlugin<AssignmentElementI
             ticksConfig={props.ticksConfig}
             resource={resource}
             dragContext={props.dragContext}
+            listeners={props.listeners}
             viewConfig={props.viewConfig} />
         )}
       </ResourceTimeline>

@@ -112,6 +112,8 @@ export declare interface ListenersConfig {
   assignments: {
     drag: (assignment: Assignment, resource: Resource, event: Event) => void;
     drop: (assignment: Assignment, resource: Resource, event: Event, startTime: Date, originalResource: Resource) => void;
+    click: (assignment: Assignment, event: Event) => void;
+    dbclick: (assignment: Assignment, event: Event) => void;
   },
   external: {
     drag: (item: any) => void;

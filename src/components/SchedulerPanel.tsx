@@ -120,6 +120,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                               resources={resources}
                               events={events}
                               assignments={assignments}
+                              listeners={listeners}
                               resourceAssignments={resourceAssignments}
                               resourceElements={resourceElements}
                               ticksConfig={ticksConfig}
@@ -134,6 +135,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                                   scrollTop={scrollTop}
                                   start={start}
                                   end={end}
+                                  listeners={listeners}
                                   resources={resources}
                                   events={events}
                                   assignments={assignments}

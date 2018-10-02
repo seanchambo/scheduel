@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
 import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
 
-import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig } from '../models';
+import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig, ListenersConfig } from '../models';
 import itemTypes from '../utils/itemTypes';
 
 
@@ -14,6 +14,7 @@ interface AssignmentElementProps {
   resource: Resource;
   connectDragSource?: ConnectDragSource;
   connectDragPreview?: ConnectDragPreview;
+  listeners: ListenersConfig;
 }
 
 const styles = {
@@ -70,7 +71,10 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
     };
 
     return connectDragSource(
-      <div style={style}>
+      <div
+        style={style}
+        onClick={() => { this.props.listeners.assignments.click(element.assignment, element.event) }}
+        onDoubleClick={() => { this.props.listeners.assignments.dbclick(element.assignment, element.event) }}>
         {this.props.viewConfig.renderers.events.assignment(element.event, element.assignment, resource)}
       </div>
     )

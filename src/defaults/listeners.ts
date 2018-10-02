@@ -4,6 +4,8 @@ const listeners: ListenersConfig = {
   assignments: {
     drag: () => { },
     drop: () => { },
+    click: () => { },
+    dbclick: () => { },
   },
   external: {
     drag: () => { },
