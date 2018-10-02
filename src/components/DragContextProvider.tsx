@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Event, Assignment, Resource, DragContext, ListenersConfig } from '../models';
+import { Event, Assignment, Resource, DragContext, ListenersConfig, DragDropConfig } from '../models';
 
 interface DragContextProviderProps {
   children: (dragContext: DragContext) => React.ReactNode;

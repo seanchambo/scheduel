@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { TimelineComponentProps } from './plugins/TimelinePlugin';
-import { Grid, Index } from 'react-virtualized';
+import { Grid } from 'react-virtualized';
 import { BasePlugin } from './plugins/BasePlugin';
 
 export declare type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
@@ -57,7 +57,6 @@ export declare interface AssignmentElement {
   assignment: Assignment;
 }
 
-// TODO: AssignmentId??
 export declare interface Assignment {
   id: number | string;
   resourceId: number | string;
@@ -91,6 +90,12 @@ export declare interface ViewConfig {
   resourceAxis: ResourceAxisConfig;
   timeSpan: TimeSpanConfig;
   renderers: RendererConfig;
+}
+
+export declare interface DragDropConfig {
+  snapToResource: boolean;
+  snapToRounededDate: boolean;
+  roundDateToNearest: { unit: TimeUnit, increment: number };
 }
 
 export declare interface RendererConfig {

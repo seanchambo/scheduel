@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
 
-import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext, TimelinePluginComponent } from '../models';
+import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext, TimelinePluginComponent, DragDropConfig, ResourceElement } from '../models';
 
 import { getDateFromPosition, getCoordinatesForTimeSpan } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
@@ -17,6 +17,8 @@ interface DragLayerProps {
   resourceTimeStream: React.RefObject<TimelinePluginComponent>;
   viewConfig: ViewConfig;
   ticksConfig: TicksConfig;
+  dragDropConfig: DragDropConfig;
+  resourceElements: ResourceElement[];
   start: Date;
   end: Date;
 }
@@ -32,7 +34,7 @@ const layerStyles: React.CSSProperties = {
 }
 
 @DragLayerWrapper(monitor => ({
-  currentOffset: monitor.getSourceClientOffset(),
+  currentOffset: monitor.getClientOffset(),
   isDragging: monitor.isDragging(),
   itemType: monitor.getItemType(),
   item: monitor.getItem(),
@@ -40,6 +42,8 @@ const layerStyles: React.CSSProperties = {
 class DragLayer extends React.PureComponent<DragLayerProps> {
   render() {
     const {
+      dragDropConfig,
+      resourceElements,
       isDragging,
       dragContext,
       externalDragContext,
@@ -57,7 +61,7 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       return null
     }
 
-    const { x, y } = currentOffset;
+    let { x, y } = currentOffset;
 
     const panel: Element = ReactDOM.findDOMNode(resourceTimeStream.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
@@ -70,6 +74,24 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
     }
 
     const height = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+
+    if (dragDropConfig.snapToResource) {
+      if (y >= resourceElements[0].top + panel.getBoundingClientRect().top) {
+        let resource: ResourceElement = null;
+
+        for (const resourceElement of resourceElements) {
+          if (resourceElement.top + panel.getBoundingClientRect().top <= y && resourceElement.top + resourceElement.pixels + panel.getBoundingClientRect().top > y) {
+            resource = resourceElement;
+            break;
+          }
+        }
+
+        if (!resource) { resource = resourceElements[resourceElements.length - 1] }
+
+        y = resource.top + panel.getBoundingClientRect().top + viewConfig.resourceAxis.row.padding;
+      }
+    }
+
     const style = { transform: `translate(${x}px, ${y}px)`, height };
 
     let content: React.ReactNode;

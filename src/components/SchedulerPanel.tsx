@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 
-import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext, Plugin, TimelinePluginComponent } from '../models';
+import { Assignment, Resource, Event, ViewConfig, ListenersConfig, ExternalDragContext, Plugin, TimelinePluginComponent, DragDropConfig } from '../models';
 
 import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
@@ -17,6 +17,7 @@ interface SchedulerPanelProps {
   events: Event[];
   viewConfig: ViewConfig;
   externalDragContext: ExternalDragContext;
+  dragDropConfig: DragDropConfig;
   listeners: ListenersConfig;
   plugins: Plugin[];
 }
@@ -58,7 +59,6 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
     const resourceAssignmentTimelinePlugin = new ResourceAssignmentTimelinePlugin();
     this.resourceAssignmentTimelineComponent = resourceAssignmentTimelinePlugin.createComponentClass();
     this.pluginComponents = props.plugins.map(plugin => plugin.createComponentClass());
-    console.log(this.pluginComponents);
   }
 
   componentDidUpdate(prevProps: SchedulerPanelProps) {
@@ -69,7 +69,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
   }
 
   render() {
-    const { resources, events, assignments, viewConfig, listeners, externalDragContext } = this.props;
+    const { resources, events, assignments, viewConfig, listeners, externalDragContext, dragDropConfig } = this.props;
 
     return (
       <ViewDataProvider ref={this.viewDataProvider} viewConfig={viewConfig} resources={resources} events={events} assignments={assignments}>
@@ -87,6 +87,8 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                     return (
                       <div style={styles.root}>
                         <DragLayer
+                          dragDropConfig={dragDropConfig}
+                          resourceElements={resourceElements}
                           resourceTimeStream={this.resourceTimeStream}
                           externalDragContext={externalDragContext}
                           dragContext={dragContext}

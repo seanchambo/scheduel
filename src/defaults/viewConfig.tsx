@@ -133,8 +133,6 @@ const config: ViewConfig = {
         const duration = 3000000000;
         const end = new Date(start.getTime() + duration);
         const width = getWidthForEnd(end);
-        console.log(start, end);
-        console.log(width);
         const newStyles = {
           ...style,
           ...styles.events.root,
