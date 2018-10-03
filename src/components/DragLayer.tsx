@@ -4,13 +4,15 @@ import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
 
 import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext, TimelinePluginComponent, DragDropConfig, ResourceElement } from '../models';
 
-import { getDateFromPosition, getCoordinatesForTimeSpan } from '../utils/dom';
+import { getDateFromPosition, getCoordinatesForTimeSpan, getPositionFromDate } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
+import { roundTo } from '../utils/date';
 
 interface DragLayerProps {
   item?: any;
   itemType?: string;
-  currentOffset?: XYCoord;
+  domOffset?: XYCoord;
+  pointerOffset?: XYCoord;
   isDragging?: boolean;
   dragContext: DragContext;
   externalDragContext: ExternalDragContext;
@@ -34,7 +36,8 @@ const layerStyles: React.CSSProperties = {
 }
 
 @DragLayerWrapper(monitor => ({
-  currentOffset: monitor.getClientOffset(),
+  domOffset: monitor.getSourceClientOffset(),
+  pointerOffset: monitor.getClientOffset(),
   isDragging: monitor.isDragging(),
   itemType: monitor.getItemType(),
   item: monitor.getItem(),
@@ -52,30 +55,25 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       ticksConfig,
       start,
       end,
-      currentOffset,
+      domOffset,
+      pointerOffset,
       itemType
     } = this.props
 
 
-    if (!isDragging || !currentOffset) {
+    if (!isDragging || !domOffset || !pointerOffset) {
       return null
     }
 
-    let { x, y } = currentOffset;
+    let { x, y } = domOffset
 
     const panel: Element = ReactDOM.findDOMNode(resourceTimeStream.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
-    const currentStart = getDateFromPosition(xFromSchedulerStart, ticksConfig.minor);
-
-    const getWidthForEnd = (currentEnd: Date): number => {
-      const { startX, endX } = getCoordinatesForTimeSpan(currentStart, currentEnd, ticksConfig.minor, start, end);
-      return endX - startX;
-    }
-
-    const height = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+    let currentStart = getDateFromPosition(xFromSchedulerStart, ticksConfig.minor);
 
     if (dragDropConfig.snapToResource) {
+      ({ y } = pointerOffset);
       if (y >= resourceElements[0].top + panel.getBoundingClientRect().top) {
         let resource: ResourceElement = null;
 
@@ -92,6 +90,18 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       }
     }
 
+    if (dragDropConfig.snapToRounededDate) {
+      ({ x } = pointerOffset);
+      currentStart = roundTo(currentStart, dragDropConfig.roundDateToNearest.increment, dragDropConfig.roundDateToNearest.unit);
+      x = getPositionFromDate(currentStart, ticksConfig.minor) + panel.getBoundingClientRect().left - panel.scrollLeft;
+    }
+
+    const getWidthForEnd = (currentEnd: Date): number => {
+      const { startX, endX } = getCoordinatesForTimeSpan(currentStart, currentEnd, ticksConfig.minor, start, end);
+      return endX - startX;
+    }
+
+    const height = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
     const style = { transform: `translate(${x}px, ${y}px)`, height };
 
     let content: React.ReactNode;

@@ -127,6 +127,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                               resourceElements={resourceElements}
                               ticksConfig={ticksConfig}
                               viewConfig={viewConfig}
+                              dragDropConfig={dragDropConfig}
                               externalDragContext={externalDragContext}
                               dragContext={dragContext} />
                             {
@@ -145,6 +146,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                                   resourceElements={resourceElements}
                                   ticksConfig={ticksConfig}
                                   viewConfig={viewConfig}
+                                  dragDropConfig={dragDropConfig}
                                   externalDragContext={externalDragContext}
                                   dragContext={dragContext} />
                               )

@@ -3,6 +3,7 @@ import { TimelineComponentProps } from './plugins/TimelinePlugin';
 import { Grid } from 'react-virtualized';
 import { BasePlugin } from './plugins/BasePlugin';
 
+export declare type IncrementTimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days";
 export declare type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
 export declare type ResourceRowLayout = "stack" | "pack" | "overlap";
 
@@ -95,7 +96,7 @@ export declare interface ViewConfig {
 export declare interface DragDropConfig {
   snapToResource: boolean;
   snapToRounededDate: boolean;
-  roundDateToNearest: { unit: TimeUnit, increment: number };
+  roundDateToNearest: { unit: IncrementTimeUnit, increment: number };
 }
 
 export declare interface RendererConfig {

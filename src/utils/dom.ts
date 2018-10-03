@@ -300,26 +300,26 @@ export const getDateFromPosition = (x: number, ticks: Tick[]): Date => {
   }
 }
 
-// // Returns -1 if date does not exist within ticks
-// export const getPositionFromDate = (date: Date, ticks: Tick[]): number => {
-//   let currentIndex = 0;
-//   let currentX = 0;
+// Returns -1 if date does not exist within ticks
+export const getPositionFromDate = (date: Date, ticks: Tick[]): number => {
+  let currentIndex = 0;
+  let currentX = 0;
 
-//   while (true) {
-//     const tick = ticks[currentIndex];
+  while (true) {
+    const tick = ticks[currentIndex];
 
-//     if (tick.startTime <= date && date <= tick.endTime) {
-//       const msFromTickStartToDate = date.getTime() - tick.startTime.getTime();
-//       const ratio = msFromTickStartToDate / tick.incrementInMs;
-//       const width = ratio * tick.width;
-//       return currentX + width;
-//     }
+    if (tick.startTime <= date && date <= tick.endTime) {
+      const msFromTickStartToDate = date.getTime() - tick.startTime.getTime();
+      const ratio = msFromTickStartToDate / tick.incrementInMs;
+      const width = ratio * tick.width;
+      return currentX + width;
+    }
 
-//     currentX += tick.width;
-//     currentIndex += 1;
+    currentX += tick.width;
+    currentIndex += 1;
 
-//     if (currentIndex === ticks.length) {
-//       return -1;
-//     }
-//   }
-// }
+    if (currentIndex === ticks.length) {
+      return -1;
+    }
+  }
+}

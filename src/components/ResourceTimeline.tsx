@@ -2,17 +2,19 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
-import { Resource, TicksConfig, DragContext, ExternalDragContext } from '../models';
+import { Resource, TicksConfig, DragContext, ExternalDragContext, DragDropConfig } from '../models';
 
 import { getDateFromPosition } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
 import { Grid } from 'react-virtualized';
+import { roundTo } from '../utils/date';
 
 interface ResourceTimelineProps {
   grid: Grid;
   resource: Resource;
   ticksConfig: TicksConfig;
   dragContext: DragContext;
+  dragDropConfig: DragDropConfig;
   externalDragContext: ExternalDragContext;
   connectAssignmentDropTarget?: ConnectDropTarget;
   connectExternalDropTarget?: ConnectDropTarget;
@@ -38,7 +40,8 @@ const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
     const panel: Element = ReactDOM.findDOMNode(props.grid) as Element;
     const xFromPanel = finish.x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
-    const date = getDateFromPosition(xFromSchedulerStart, props.ticksConfig.minor);
+    let date = getDateFromPosition(xFromSchedulerStart, props.ticksConfig.minor);
+    date = roundTo(date, props.dragDropConfig.roundDateToNearest.increment, props.dragDropConfig.roundDateToNearest.unit);
 
     return {
       resource: props.resource,

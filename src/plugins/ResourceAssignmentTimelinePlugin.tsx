@@ -28,6 +28,7 @@ class ResourceAssignmentTimelinePlugin extends TimelinePlugin<AssignmentElementI
         grid={grid}
         resource={resource}
         externalDragContext={props.externalDragContext}
+        dragDropConfig={props.dragDropConfig}
         ticksConfig={props.ticksConfig}
         dragContext={props.dragContext}>
         {elements.map(element =>

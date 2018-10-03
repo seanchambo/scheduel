@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Resource, TicksConfig, Assignment, Event, ViewConfig, DragContext, ExternalDragContext, ResourceAssignmentMap, ResourceElement, TimelinePluginComponent, ListenersConfig } from "../models";
+import { Resource, TicksConfig, Assignment, Event, ViewConfig, DragContext, ExternalDragContext, ResourceAssignmentMap, ResourceElement, TimelinePluginComponent, ListenersConfig, DragDropConfig } from "../models";
 import { AutoSizer, Grid, OnScrollCallback, Index } from 'react-virtualized';
 import { BasePlugin } from './BasePlugin';
 
@@ -10,6 +10,7 @@ export interface TimelineComponentProps {
   events: Event[];
   viewConfig: ViewConfig;
   dragContext: DragContext;
+  dragDropConfig: DragDropConfig;
   listeners: ListenersConfig;
   externalDragContext: ExternalDragContext;
   resourceAssignments: ResourceAssignmentMap;

@@ -220,7 +220,7 @@ class App extends React.Component {
                   resources={this.state.resources}
                   events={this.state.events}
                   externalDragContext={externalDragContext}
-                  dragDropConfig={defaults.dragDrop}
+                  dragDropConfig={{ ...defaults.dragDrop, roundDateToNearest: { unit: 'hours', increment: 12 } }}
                   plugins={[new plugins.TicksTimelinePlugin()]}
                   listeners={{ ...defaults.listeners, assignments: { ...defaults.listeners.assignments, drop: this.updateEvent } }}
                   viewConfig={{ ...config, timeSpan: timeAxes[this.state.zoomLevel].timeSpan, timeAxis: timeAxes[this.state.zoomLevel].timeAxis }} />
