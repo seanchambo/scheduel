@@ -5,7 +5,7 @@ const listeners: ListenersConfig = {
     drag: () => { },
     drop: () => { },
     click: () => { },
-    dbclick: () => { },
+    doubleClick: () => { },
   },
   external: {
     drag: () => { },

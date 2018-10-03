@@ -74,7 +74,7 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
       <div
         style={style}
         onClick={() => { this.props.listeners.assignments.click(element.assignment, element.event) }}
-        onDoubleClick={() => { this.props.listeners.assignments.dbclick(element.assignment, element.event) }}>
+        onDoubleClick={() => { this.props.listeners.assignments.doubleClick(element.assignment, element.event) }}>
         {this.props.viewConfig.renderers.events.assignment(element.event, element.assignment, resource)}
       </div>
     )

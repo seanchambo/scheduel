@@ -220,9 +220,9 @@ class App extends React.Component {
                   resources={this.state.resources}
                   events={this.state.events}
                   externalDragContext={externalDragContext}
-                  dragDropConfig={{ ...defaults.dragDrop, roundDateToNearest: { unit: 'hours', increment: 12 } }}
+                  dragDropConfig={{ ...defaults.dragDrop, roundDateToNearest: { unit: 'hours', increment: 12 }, snapToResource: false }}
                   plugins={[new plugins.TicksTimelinePlugin()]}
-                  listeners={{ ...defaults.listeners, assignments: { ...defaults.listeners.assignments, drop: this.updateEvent } }}
+                  listeners={{ ...defaults.listeners, assignments: { ...defaults.listeners.assignments, drop: this.updateEvent, doubleClick: (...args: any[]) => console.log(args) } }}
                   viewConfig={{ ...config, timeSpan: timeAxes[this.state.zoomLevel].timeSpan, timeAxis: timeAxes[this.state.zoomLevel].timeAxis }} />
               </div>
               <ExternalDragItem externalDragContext={externalDragContext} />
