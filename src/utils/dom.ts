@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, ViewConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, TicksConfig, ResourceElement } from '../models';
+import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, ResourceElement, Ticks } from '../../index.d';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -56,8 +56,8 @@ export const getResourceElementsAndHeights = (
   events: Event[],
   resources: Resource[],
   assignments: Assignment[],
-  viewConfig: ViewConfig,
-  ticksConfig: TicksConfig,
+  axesConfig: AxesConfig,
+  ticks: Ticks,
   start: Date,
   end: Date,
 ): { resourceElements: ResourceElement[], resourceAssignments: ResourceAssignmentMap } => {
@@ -87,7 +87,7 @@ export const getResourceElementsAndHeights = (
     const resource = resourceMap[assignment.resourceId];
     if (!resource) { continue; }
 
-    const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticksConfig.minor, start, end);
+    const { startX, endX } = getCoordinatesForTimeSpan(event.startTime, event.endTime, ticks.minor, start, end);
 
     const assignmentElement: AssignmentElement = { startX, endX, top: null, event, assignment, height: null, depth: null };
 
@@ -126,7 +126,7 @@ export const getResourceElementsAndHeights = (
       return aMs - bMs;
     });
 
-    const { maxDepth, rowHeight } = setAssignmentElementsHeight(resourceEvents, viewConfig);
+    const { maxDepth, rowHeight } = setAssignmentElementsHeight(resourceEvents, axesConfig);
     resourceElements.push({ depth: maxDepth, pixels: rowHeight, top: accumTop, resource });
     accumTop += rowHeight;
   }
@@ -134,9 +134,9 @@ export const getResourceElementsAndHeights = (
   return { resourceAssignments, resourceElements };
 }
 
-const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewConfig: ViewConfig): { maxDepth: number, rowHeight: number } => {
-  if (viewConfig.resourceAxis.row.layout === 'stack') {
-    const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], axesConfig: AxesConfig): { maxDepth: number, rowHeight: number } => {
+  if (axesConfig.resource.row.layout === 'stack') {
+    const assignmentHeight = axesConfig.resource.row.height - 2 * axesConfig.resource.row.padding;
     let lanes: AssignmentElement[] = [];
     let stack: AssignmentElement[] = [];
     let maxLanesLength: number = 0;
@@ -162,7 +162,7 @@ const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewCo
       if (isFinished) {
         stack.forEach((assignmentElement) => {
           assignmentElement.height = assignmentHeight;
-          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * viewConfig.resourceAxis.row.padding;
+          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * axesConfig.resource.row.padding;
         });
 
         stack = [];
@@ -170,25 +170,25 @@ const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewCo
     }
 
     let rowHeight: number;
-    if (maxLanesLength === 0) { rowHeight = viewConfig.resourceAxis.row.height }
-    else { rowHeight = maxLanesLength * assignmentHeight + (maxLanesLength + 1) * viewConfig.resourceAxis.row.padding }
+    if (maxLanesLength === 0) { rowHeight = axesConfig.resource.row.height }
+    else { rowHeight = maxLanesLength * assignmentHeight + (maxLanesLength + 1) * axesConfig.resource.row.padding }
 
     return { maxDepth: maxLanesLength, rowHeight };
   }
 
-  if (viewConfig.resourceAxis.row.layout === 'overlap') {
-    const assignmentHeight = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+  if (axesConfig.resource.row.layout === 'overlap') {
+    const assignmentHeight = axesConfig.resource.row.height - 2 * axesConfig.resource.row.padding;
 
     for (const event of resourceEvents) {
-      event.assignmentElement.top = viewConfig.resourceAxis.row.padding;
+      event.assignmentElement.top = axesConfig.resource.row.padding;
       event.assignmentElement.height = assignmentHeight;
       event.assignmentElement.depth = 0;
     }
 
-    return { maxDepth: 0, rowHeight: viewConfig.resourceAxis.row.height };
+    return { maxDepth: 0, rowHeight: axesConfig.resource.row.height };
   }
 
-  if (viewConfig.resourceAxis.row.layout === 'pack') {
+  if (axesConfig.resource.row.layout === 'pack') {
     let lanes: AssignmentElement[] = [];
     let stack: AssignmentElement[] = [];
     let maxLanesLength: number = 0;
@@ -212,11 +212,11 @@ const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewCo
       let isFinished = lanes.length === 0 ? true : lanes.every(lane => lane === null);
 
       if (isFinished) {
-        const assignmentHeight = (viewConfig.resourceAxis.row.height - (1 + maxLanesLength) * viewConfig.resourceAxis.row.padding) / (maxLanesLength);
+        const assignmentHeight = (axesConfig.resource.row.height - (1 + maxLanesLength) * axesConfig.resource.row.padding) / (maxLanesLength);
 
         stack.forEach((assignmentElement) => {
           assignmentElement.height = assignmentHeight;
-          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * viewConfig.resourceAxis.row.padding;
+          assignmentElement.top = assignmentElement.depth * assignmentHeight + (assignmentElement.depth + 1) * axesConfig.resource.row.padding;
         });
 
         stack = [];
@@ -224,7 +224,7 @@ const setAssignmentElementsHeight = (resourceEvents: ResourceEventItem[], viewCo
       }
     }
 
-    return { maxDepth: 0, rowHeight: viewConfig.resourceAxis.row.height };
+    return { maxDepth: 0, rowHeight: axesConfig.resource.row.height };
   }
 }
 

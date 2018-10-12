@@ -2,11 +2,12 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
 
-import { DragContext, ViewConfig, TicksConfig, EventDragPreviewRenderContext, ExternalDragContext, ExternalDragPreviewRenderContext, TimelinePluginComponent, DragDropConfig, ResourceElement } from '../models';
+import { DragContext, AxesConfig, Ticks, DragDropConfig, ResourceElement, InternalDragDropPreviewContext, ExternalDragDropPreviewContext } from '../../index.d';
 
 import { getDateFromPosition, getCoordinatesForTimeSpan, getPositionFromDate } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
 import { roundTo } from '../utils/date';
+import AssignmentGrid from './AssignmentGrid';
 
 interface DragLayerProps {
   item?: any;
@@ -15,10 +16,9 @@ interface DragLayerProps {
   pointerOffset?: XYCoord;
   isDragging?: boolean;
   dragContext: DragContext;
-  externalDragContext: ExternalDragContext;
-  resourceTimeStream: React.RefObject<TimelinePluginComponent>;
-  viewConfig: ViewConfig;
-  ticksConfig: TicksConfig;
+  assignmentGrid: React.RefObject<AssignmentGrid>;
+  axesConfig: AxesConfig;
+  ticks: Ticks;
   dragDropConfig: DragDropConfig;
   resourceElements: ResourceElement[];
   start: Date;
@@ -49,10 +49,9 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       resourceElements,
       isDragging,
       dragContext,
-      externalDragContext,
-      resourceTimeStream,
-      viewConfig,
-      ticksConfig,
+      assignmentGrid,
+      axesConfig,
+      ticks,
       start,
       end,
       domOffset,
@@ -61,18 +60,27 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
     } = this.props
 
 
-    if (!isDragging || !domOffset || !pointerOffset) {
+    if (
+      !isDragging ||
+      !domOffset ||
+      !pointerOffset ||
+      dragDropConfig.internal.enabled === false && itemType === itemTypes.Assignment ||
+      dragDropConfig.external.enabled === false && itemType === itemTypes.External
+    ) {
       return null
     }
 
     let { x, y } = domOffset
 
-    const panel: Element = ReactDOM.findDOMNode(resourceTimeStream.current.grid.current) as Element;
+    const panel: Element = ReactDOM.findDOMNode(assignmentGrid.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
-    let currentStart = getDateFromPosition(xFromSchedulerStart, ticksConfig.minor);
+    let currentStart = getDateFromPosition(xFromSchedulerStart, ticks.minor);
 
-    if (dragDropConfig.snapToResource) {
+    if (
+      (itemType === itemTypes.Assignment && dragDropConfig.internal.enabled && dragDropConfig.internal.snapToResource) ||
+      (itemType === itemTypes.External && dragDropConfig.external.enabled && dragDropConfig.external.snapToResource)
+    ) {
       ({ y } = pointerOffset);
       if (y >= resourceElements[0].top + panel.getBoundingClientRect().top) {
         let resource: ResourceElement = null;
@@ -86,30 +94,33 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
 
         if (!resource) { resource = resourceElements[resourceElements.length - 1] }
 
-        y = resource.top + panel.getBoundingClientRect().top + viewConfig.resourceAxis.row.padding;
+        y = resource.top + panel.getBoundingClientRect().top + axesConfig.resource.row.padding;
       }
     }
 
-    if (dragDropConfig.snapToRounededDate) {
+    if (
+      (itemType === itemTypes.Assignment && dragDropConfig.internal.enabled && dragDropConfig.internal.snapToTimeResolution) ||
+      (itemType === itemTypes.External && dragDropConfig.external.enabled && dragDropConfig.external.snapToTimeResolution)
+    ) {
       ({ x } = pointerOffset);
-      currentStart = roundTo(currentStart, dragDropConfig.roundDateToNearest.increment, dragDropConfig.roundDateToNearest.unit);
-      x = getPositionFromDate(currentStart, ticksConfig.minor) + panel.getBoundingClientRect().left - panel.scrollLeft;
+      currentStart = roundTo(currentStart, axesConfig.time.resolution.increment, axesConfig.time.resolution.unit);
+      x = getPositionFromDate(currentStart, ticks.minor) + panel.getBoundingClientRect().left - panel.scrollLeft;
     }
 
     const getWidthForEnd = (currentEnd: Date): number => {
-      const { startX, endX } = getCoordinatesForTimeSpan(currentStart, currentEnd, ticksConfig.minor, start, end);
+      const { startX, endX } = getCoordinatesForTimeSpan(currentStart, currentEnd, ticks.minor, start, end);
       return endX - startX;
     }
 
-    const height = viewConfig.resourceAxis.row.height - 2 * viewConfig.resourceAxis.row.padding;
+    const height = axesConfig.resource.row.height - 2 * axesConfig.resource.row.padding;
     const style = { transform: `translate(${x}px, ${y}px)`, height };
 
     let content: React.ReactNode;
 
-    if (itemType === itemTypes.Assignment) {
+    if (itemType === itemTypes.Assignment && dragDropConfig.internal.enabled) {
       if (!dragContext.dragging) { return null; }
 
-      const context: EventDragPreviewRenderContext = {
+      const context: InternalDragDropPreviewContext = {
         event: dragContext.draggedEvent,
         assignment: dragContext.draggedAssignment,
         originalResource: dragContext.originalResource,
@@ -119,21 +130,21 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
         style,
       }
 
-      content = viewConfig.renderers.events.preview(context);
+      content = dragDropConfig.internal.previewRenderer(context);
     }
 
-    if (itemType === itemTypes.External) {
-      if (!externalDragContext.dragging) { return null; }
+    if (itemType === itemTypes.External && dragDropConfig.external.enabled) {
+      if (!dragDropConfig.external.context.dragging) { return null; }
 
-      const context: ExternalDragPreviewRenderContext = {
-        item: externalDragContext.item,
-        hoveredResource: externalDragContext.hoveredResource,
+      const context: ExternalDragDropPreviewContext = {
+        item: dragDropConfig.external.context.item,
+        hoveredResource: dragDropConfig.external.context.hoveredResource,
         start: currentStart,
         getWidthForEnd,
         style,
       }
 
-      content = viewConfig.renderers.external.preview(context);
+      content = dragDropConfig.external.previewRenderer(context);
     }
 
     return (

@@ -5,13 +5,13 @@ import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
 
-import { Resource, ViewConfig, DragContext, ResourceElement, ResourceAssignmentMap, ExternalDragContext } from '../models';
+import { Resource, AxesConfig, DragContext, ResourceElement, ResourceAssignmentMap, DragDropConfig, ExternalDragDropConfig } from '../../index.d';
 
 interface ResourceStreamProps {
   resources: Resource[];
-  viewConfig: ViewConfig;
+  axesConfig: AxesConfig;
   dragContext: DragContext;
-  externalDragContext: ExternalDragContext;
+  dragDropConfig: DragDropConfig;
   resourceElements: ResourceElement[];
   resourceAssignments: ResourceAssignmentMap;
   scrollTop: number;
@@ -46,7 +46,9 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
       this.grid.current.forceUpdate();
     }
 
-    if (this.props.externalDragContext !== prevProps.externalDragContext) {
+    if (
+      this.props.dragDropConfig.external.enabled !== prevProps.dragDropConfig.external.enabled ||
+      (this.props.dragDropConfig.external as ExternalDragDropConfig).context !== (prevProps.dragDropConfig.external as ExternalDragDropConfig).context) {
       this.grid.current.forceUpdate();
     }
   }
@@ -54,16 +56,17 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   _renderHeaderCell = ({ columnIndex, style, key }) => {
     return (
       <div style={{ ...style, ...styles.cell }} key={key}>
-        {this.props.viewConfig.resourceAxis.columns[columnIndex].header.renderer()}
+        {this.props.axesConfig.resource.columns[columnIndex].labelRenderer()}
       </div>
     )
   }
 
   _renderResourceCell = ({ rowIndex, columnIndex, style, key }) => {
     const resource = this.props.resources[rowIndex];
-    const column = this.props.viewConfig.resourceAxis.columns[columnIndex];
-    const isOver = this.props.dragContext.hoveredResource === resource || this.props.externalDragContext.hoveredResource === resource;
+    const column = this.props.axesConfig.resource.columns[columnIndex];
+    const isOver = this.props.dragContext.hoveredResource === resource || this.props.dragDropConfig.external.enabled && this.props.dragDropConfig.external.context.hoveredResource === resource;
     const wasOriginal = this.props.dragContext.originalResource === resource;
+    const context = { isOver, wasOriginal };
 
     if (rowIndex === this.props.resources.length) {
       return <div key={key} style={{ ...style, ...styles.cell, height: scrollbarSize() }} />
@@ -71,13 +74,13 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
 
     return (
       <div style={{ ...style, ...styles.cell }} key={key}>
-        {column.renderer(resource, isOver, wasOriginal)}
+        {column.rowRenderer(resource, context)}
       </div>
     )
   }
 
   _getColumnWidth = ({ index }) => {
-    return this.props.viewConfig.resourceAxis.columns[index].width;
+    return this.props.axesConfig.resource.columns[index].width;
   }
 
   _getResourceHeight = ({ index }) => {
@@ -86,27 +89,27 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
   }
 
   render() {
-    const headerHeight = this.props.viewConfig.timeAxis.major.height + this.props.viewConfig.timeAxis.minor.height;
+    const headerHeight = this.props.axesConfig.time.ticks.major.rowHeight + this.props.axesConfig.time.ticks.minor.rowHeight;
 
     return (
       <ScrollSync>
         {({ onScroll, scrollLeft }) => {
           return (
-            <div style={{ ...styles.root, width: this.props.viewConfig.resourceAxis.width }}>
-              <div style={{ height: headerHeight, width: this.props.viewConfig.resourceAxis.width }}>
+            <div style={{ ...styles.root, width: this.props.axesConfig.resource.width }}>
+              <div style={{ height: headerHeight, width: this.props.axesConfig.resource.width }}>
                 <Grid
                   scrollLeft={scrollLeft}
                   cellRenderer={this._renderHeaderCell}
-                  columnCount={this.props.viewConfig.resourceAxis.columns.length}
+                  columnCount={this.props.axesConfig.resource.columns.length}
                   columnWidth={this._getColumnWidth}
                   overscanColumnCount={10}
                   height={headerHeight}
                   rowCount={1}
                   rowHeight={headerHeight}
-                  width={this.props.viewConfig.resourceAxis.width}
+                  width={this.props.axesConfig.resource.width}
                 />
               </div>
-              <div style={{ ...styles.body, width: this.props.viewConfig.resourceAxis.width }}>
+              <div style={{ ...styles.body, width: this.props.axesConfig.resource.width }}>
                 <AutoSizer disableWidth>
                   {({ height }) => {
                     return (
@@ -116,14 +119,14 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                         scrollTop={this.props.scrollTop}
                         onScroll={onScroll}
                         cellRenderer={this._renderResourceCell}
-                        columnCount={this.props.viewConfig.resourceAxis.columns.length}
+                        columnCount={this.props.axesConfig.resource.columns.length}
                         columnWidth={this._getColumnWidth}
                         overscanColumnCount={10}
                         overscanRowCount={10}
                         height={height}
                         rowCount={this.props.resources.length + 1}
                         rowHeight={this._getResourceHeight}
-                        width={this.props.viewConfig.resourceAxis.width}
+                        width={this.props.axesConfig.resource.width}
                       />
                     )
                   }}

@@ -2,19 +2,20 @@ import * as React from 'react';
 import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
 import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
 
-import { AssignmentElement as AssignmentElementInterface, ViewConfig, DragContext, Resource, TicksConfig, ListenersConfig } from '../models';
+import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer } from '../../index.d';
 import itemTypes from '../utils/itemTypes';
 
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
-  viewConfig: ViewConfig;
-  ticksConfig: TicksConfig;
+  axesConfig: AxesConfig;
+  ticks: Ticks;
   dragContext: DragContext;
+  dragDropConfig: DragDropConfig;
   resource: Resource;
+  assignmentRenderer: AssignmentRenderer;
   connectDragSource?: ConnectDragSource;
   connectDragPreview?: ConnectDragPreview;
-  listeners: ListenersConfig;
 }
 
 const styles = {
@@ -30,6 +31,9 @@ interface AssignmentSourceDragObject {
 };
 
 const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceDragObject> = {
+  canDrag(props) {
+    return props.dragDropConfig.internal.enabled;
+  },
   beginDrag(props, monitor, component) {
     props.dragContext.start(props.element.assignment, props.element.event, props.resource);
 
@@ -71,11 +75,8 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
     };
 
     return connectDragSource(
-      <div
-        style={style}
-        onClick={() => { this.props.listeners.assignments.click(element.assignment, element.event) }}
-        onDoubleClick={() => { this.props.listeners.assignments.doubleClick(element.assignment, element.event) }}>
-        {this.props.viewConfig.renderers.events.assignment(element.event, element.assignment, resource)}
+      <div style={style}>
+        {this.props.assignmentRenderer(element.assignment, element.event, resource)}
       </div>
     )
   }

@@ -14,7 +14,7 @@ import * as addWeeks from 'date-fns/add_weeks';
 import * as addMonths from 'date-fns/add_months';
 import * as addYears from 'date-fns/add_years';
 
-import { TimeUnit, IncrementTimeUnit } from '../models';
+import { TimeUnit } from '../../index.d';
 
 interface UnitFnInterface {
   add: Function;
@@ -23,51 +23,51 @@ interface UnitFnInterface {
 }
 
 interface FnMapInterface {
-  milliseconds: UnitFnInterface;
-  seconds: UnitFnInterface;
-  minutes: UnitFnInterface;
-  hours: UnitFnInterface;
-  days: UnitFnInterface;
-  weeks: UnitFnInterface;
-  months: UnitFnInterface;
-  years: UnitFnInterface;
+  millisecond: UnitFnInterface;
+  second: UnitFnInterface;
+  minute: UnitFnInterface;
+  hour: UnitFnInterface;
+  day: UnitFnInterface;
+  week: UnitFnInterface;
+  month: UnitFnInterface;
+  year: UnitFnInterface;
 }
 
 const fnMap: FnMapInterface = {
-  milliseconds: {
+  millisecond: {
     add: addMilliseconds,
     start: (date: Date) => new Date(date),
     toMs: (multiplier: number) => multiplier * 1,
   },
-  seconds: {
+  second: {
     add: addSeconds,
     start: (date: Date) => startOfSecond(date),
     toMs: (multiplier: number) => multiplier * 1000,
   },
-  minutes: {
+  minute: {
     add: addMinutes,
     start: (date: Date) => startOfMinute(date),
     toMs: (multiplier: number) => multiplier * 60 * 1000,
   },
-  hours: {
+  hour: {
     add: addHours,
     start: (date: Date) => startOfHour(date),
     toMs: (multiplier: number) => multiplier * 60 * 60 * 1000,
   },
-  days: {
+  day: {
     add: addDays,
     start: (date: Date) => startOfDay(date),
     toMs: (multiplier: number) => multiplier * 24 * 60 * 60 * 1000,
   },
-  weeks: {
+  week: {
     add: addWeeks,
     start: (date: Date) => startOfWeek(date),
   },
-  months: {
+  month: {
     add: addMonths,
     start: (date: Date) => startOfMonth(date),
   },
-  years: {
+  year: {
     add: addYears,
     start: (date: Date) => startOfYear(date),
   }
@@ -77,9 +77,9 @@ export const startOfUnit = (date: Date, unit: TimeUnit): Date => fnMap[unit].sta
 
 export const addUnit = (date: Date, quantity: number, unit: TimeUnit): Date => fnMap[unit].add(date, quantity);
 
-export const getInMilliseconds = (quantity: number, unit: IncrementTimeUnit): number => fnMap[unit].toMs(quantity);
+export const getInMilliseconds = (quantity: number, unit: TimeUnit): number => fnMap[unit].toMs(quantity);
 
-export const roundTo = (date: Date, increment: number, unit: IncrementTimeUnit) => {
+export const roundTo = (date: Date, increment: number, unit: TimeUnit) => {
   const roundedIncrementMs = getInMilliseconds(increment, unit);
   const halfIncrement = roundedIncrementMs / 2;
   let roundedStart = date.getTime();

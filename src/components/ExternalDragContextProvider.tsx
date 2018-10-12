@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import { ExternalDragContext, Resource, ListenersConfig } from '../models';
+import { ExternalDragContext, Resource, DragDropConfig } from '../../index.d';
 
 interface ExternalDragContextProviderProps {
   children: (dragContext: ExternalDragContext) => React.ReactNode;
-  listeners: ListenersConfig;
+  dragDropConfig: DragDropConfig;
 }
 
 class ExternalDragContextProvider extends React.Component<ExternalDragContextProviderProps, ExternalDragContext> {
@@ -22,19 +22,25 @@ class ExternalDragContextProvider extends React.Component<ExternalDragContextPro
   }
 
   start = (item: any) => {
-    this.props.listeners.external.drag(this.state.item);
-    this.setState({ dragging: true, item });
+    if (this.props.dragDropConfig.external.enabled) {
+      this.props.dragDropConfig.external.listeners.drag(this.state.item);
+      this.setState({ dragging: true, item });
+    }
   }
 
   update = (resource: Resource) => {
-    this.setState({ hoveredResource: resource });
+    if (this.props.dragDropConfig.external.enabled) {
+      this.setState({ hoveredResource: resource });
+    }
   }
 
   end = (successful: boolean, start: Date) => {
-    if (successful) {
-      this.props.listeners.external.drop(this.state.item, this.state.hoveredResource, start);
+    if (this.props.dragDropConfig.external.enabled) {
+      if (successful) {
+        this.props.dragDropConfig.external.listeners.drop(this.state.item, this.state.hoveredResource, start);
+      }
+      this.setState({ dragging: false, item: null, hoveredResource: null });
     }
-    this.setState({ dragging: false, item: null, hoveredResource: null });
   }
 
   render() {

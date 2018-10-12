@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import { Event, Assignment, Resource, DragContext, ListenersConfig, DragDropConfig } from '../models';
+import { Event, Assignment, Resource, DragContext, DragDropConfig } from '../../index.d';
 
 interface DragContextProviderProps {
   children: (dragContext: DragContext) => React.ReactNode;
-  listeners: ListenersConfig;
+  config: DragDropConfig | false;
 }
 
 class DragContextProvider extends React.Component<DragContextProviderProps, DragContext> {
@@ -24,19 +24,25 @@ class DragContextProvider extends React.Component<DragContextProviderProps, Drag
   }
 
   start = (assignment: Assignment, event: Event, resource: Resource) => {
-    this.props.listeners.assignments.drag(assignment, resource, event);
-    this.setState({ dragging: true, draggedAssignment: assignment, draggedEvent: event, originalResource: resource });
+    if (this.props.config !== false && this.props.config.internal.enabled) {
+      this.props.config.internal.listeners.drag(assignment, resource, event);
+      this.setState({ dragging: true, draggedAssignment: assignment, draggedEvent: event, originalResource: resource });
+    }
   }
 
   update = (resource: Resource) => {
-    this.setState({ hoveredResource: resource });
+    if (this.props.config !== false && this.props.config.internal.enabled) {
+      this.setState({ hoveredResource: resource });
+    }
   }
 
   end = (successful: boolean, start: Date) => {
-    if (successful) {
-      this.props.listeners.assignments.drop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
+    if (this.props.config !== false && this.props.config.internal.enabled) {
+      if (successful) {
+        this.props.config.internal.listeners.drop(this.state.draggedAssignment, this.state.hoveredResource, this.state.draggedEvent, start, this.state.originalResource);
+      }
+      this.setState({ dragging: false, draggedAssignment: null, hoveredResource: null, draggedEvent: null, originalResource: null });
     }
-    this.setState({ dragging: false, draggedAssignment: null, hoveredResource: null, draggedEvent: null, originalResource: null });
   }
 
   render() {

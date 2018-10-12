@@ -46,7 +46,9 @@
     "build": "rm -rf dist lib && tsc && rollup -c"
   },
   "dependencies": {
+    "deepmerge": "^2.2.1",
     "dom-helpers": "^3.3.1",
+    "lodash.merge": "^4.6.1",
     "react-virtualized": "^9.20.1"
   }
 }

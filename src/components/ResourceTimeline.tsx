@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
 
-import { Resource, TicksConfig, DragContext, ExternalDragContext, DragDropConfig } from '../models';
+import { Resource, Ticks, DragContext, DragDropConfig, AxesConfig } from '../../index.d';
 
 import { getDateFromPosition } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
@@ -12,10 +12,10 @@ import { roundTo } from '../utils/date';
 interface ResourceTimelineProps {
   grid: Grid;
   resource: Resource;
-  ticksConfig: TicksConfig;
+  ticks: Ticks;
   dragContext: DragContext;
   dragDropConfig: DragDropConfig;
-  externalDragContext: ExternalDragContext;
+  axesConfig: AxesConfig;
   connectAssignmentDropTarget?: ConnectDropTarget;
   connectExternalDropTarget?: ConnectDropTarget;
   isAssignmentOver?: boolean;
@@ -40,8 +40,8 @@ const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
     const panel: Element = ReactDOM.findDOMNode(props.grid) as Element;
     const xFromPanel = finish.x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
-    let date = getDateFromPosition(xFromSchedulerStart, props.ticksConfig.minor);
-    date = roundTo(date, props.dragDropConfig.roundDateToNearest.increment, props.dragDropConfig.roundDateToNearest.unit);
+    let date = getDateFromPosition(xFromSchedulerStart, props.ticks.minor);
+    date = roundTo(date, props.axesConfig.time.resolution.increment, props.axesConfig.time.resolution.unit);
 
     return {
       resource: props.resource,
@@ -60,11 +60,11 @@ const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
 }))
 class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   componentDidUpdate(prevProps: ResourceTimelineProps) {
-    if (this.props.isAssignmentOver && !prevProps.isAssignmentOver) {
+    if (this.props.isAssignmentOver && !prevProps.isAssignmentOver && this.props.dragDropConfig.internal.enabled) {
       this.props.dragContext.update(this.props.resource);
     }
-    if (this.props.isExternalOver && !prevProps.isExternalOver) {
-      this.props.externalDragContext.update(this.props.resource);
+    if (this.props.isExternalOver && !prevProps.isExternalOver && this.props.dragDropConfig.external.enabled) {
+      this.props.dragDropConfig.external.context.update(this.props.resource);
     }
   }
 

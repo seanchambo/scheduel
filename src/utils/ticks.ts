@@ -1,11 +1,11 @@
-import { TimeAxisRowConfig, Tick, MinorTimeAxisRowConfig, TimeAxisConfig, TicksConfig } from '../models';
+import { TickConfig, Tick, MinorTickConfig, TimeAxisConfig, TicksConfig, Ticks } from '../../index.d';
 import { addUnit } from './date';
 
-export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeAxisRowConfig): Tick[] => {
+export const getTicksInRange = (start: Date, end: Date, tickConfig: TickConfig): Tick[] => {
   const result: Tick[] = []
 
   while (true) {
-    const nextStart = addUnit(start, timeAxisRowConfig.increment, timeAxisRowConfig.unit);
+    const nextStart = addUnit(start, tickConfig.increment, tickConfig.unit);
 
     if (nextStart.getTime() >= end.getTime()) {
       const show = nextStart.getTime() === end.getTime();
@@ -14,7 +14,7 @@ export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeA
         startTime: new Date(start),
         endTime: new Date(end),
         incrementInMs: end.getTime() - start.getTime(),
-        unit: timeAxisRowConfig.unit,
+        unit: tickConfig.unit,
         show,
       })
 
@@ -25,7 +25,7 @@ export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeA
       startTime: new Date(start),
       endTime: new Date(nextStart),
       incrementInMs: nextStart.getTime() - start.getTime(),
-      unit: timeAxisRowConfig.unit,
+      unit: tickConfig.unit,
       show: true,
     });
 
@@ -33,11 +33,11 @@ export const getTicksInRange = (start: Date, end: Date, timeAxisRowConfig: TimeA
   }
 }
 
-export const getMajorTickWidth = (tick: Tick, minorTimeAxisConfig: MinorTimeAxisRowConfig): number => {
+export const getMajorTickWidth = (tick: Tick, minorTickConfig: MinorTickConfig): number => {
   let start = new Date(tick.startTime);
   let end = new Date(tick.endTime);
   let width: number = 0;
-  const { increment: minorIncrement, width: minorWidth, unit: minorUnit } = minorTimeAxisConfig;
+  const { increment: minorIncrement, width: minorWidth, unit: minorUnit } = minorTickConfig;
 
   while (true) {
     const nextStart = addUnit(start, minorIncrement, minorUnit);
@@ -54,16 +54,16 @@ export const getMajorTickWidth = (tick: Tick, minorTimeAxisConfig: MinorTimeAxis
   }
 }
 
-export const getTicksConfig = (start: Date, end: Date, timeAxisConfig: TimeAxisConfig): TicksConfig => {
-  const majorTicks = getTicksInRange(start, end, timeAxisConfig.major);
-  const minorTicks = getTicksInRange(start, end, timeAxisConfig.minor);
+export const getTicks = (start: Date, end: Date, ticksConfig: TicksConfig): Ticks => {
+  const majorTicks = getTicksInRange(start, end, ticksConfig.major);
+  const minorTicks = getTicksInRange(start, end, ticksConfig.minor);
 
   minorTicks.forEach(tick => {
-    tick.width = timeAxisConfig.minor.width
+    tick.width = ticksConfig.minor.width
     tick.type = 'minor';
   });
   majorTicks.forEach(tick => {
-    tick.width = getMajorTickWidth(tick, timeAxisConfig.minor)
+    tick.width = getMajorTickWidth(tick, ticksConfig.minor)
     tick.type = 'major';
   });
 
