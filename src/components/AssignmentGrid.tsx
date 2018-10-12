@@ -20,7 +20,15 @@ interface AssignmentGridProps {
 }
 
 const styles = {
-
+  resourceTimeline: {
+    inner: {
+      position: 'absolute' as 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+    },
+  },
   timeTick: {
     position: 'absolute' as 'absolute',
     height: '100%',
@@ -105,10 +113,14 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
           ticks={this.props.ticks}
           axesConfig={this.props.axesConfig}
           dragContext={this.props.dragContext}>
-          {assignmentElements}
-          {majorTicks}
-          {minorTicks}
-          {resourceTick}
+          <div style={{ ...styles.resourceTimeline.inner, zIndex: 1 }}>
+            {assignmentElements}
+          </div>
+          <div style={styles.resourceTimeline.inner}>
+            {majorTicks}
+            {minorTicks}
+            {resourceTick}
+          </div>
         </ResourceTimeline>
       </div>
     )
