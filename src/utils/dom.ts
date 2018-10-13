@@ -4,8 +4,8 @@ import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, A
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
-  let startX: number = -1;
-  let endX: number = -1;
+  let startX: number;
+  let endX: number;
 
   if (start < timeSpanStart && end > timeSpanEnd) {
     startX = 0;
@@ -22,16 +22,16 @@ export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[],
     endX = ticks.length * ticks[0].width;
   }
 
+  if (startX && endX) { return { startX, endX } }
+
   for (let i = 0; i < ticks.length; i++) {
-    if (ticks[i].startTime.getTime() <= start.getTime() && start.getTime() < end.getTime()) {
+    if (ticks[i].startTime.getTime() <= start.getTime() && start.getTime() < ticks[i].endTime.getTime() && !startX) {
       const msFromTickStartToStart = start.getTime() - ticks[i].startTime.getTime();
       const ratio = msFromTickStartToStart / ticks[i].incrementInMs;
       const width = ratio * ticks[i].width;
       startX = currentX + width;
-
-      if (endX >= 0) { break; }
     }
-    if (ticks[i].startTime.getTime() < end.getTime() && end.getTime() <= ticks[i].endTime.getTime()) {
+    if (ticks[i].startTime.getTime() < end.getTime() && end.getTime() <= ticks[i].endTime.getTime() && !endX) {
       const msFromTickStartToEnd = end.getTime() - ticks[i].startTime.getTime();
       const ratio = msFromTickStartToEnd / ticks[i].incrementInMs;
       const width = ratio * ticks[i].width;
