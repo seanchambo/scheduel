@@ -6,9 +6,18 @@ import { AxesConfig, AssignmentRenderer, Assignment, Event, Resource, FeaturesCo
 const colours = {
   border: '#BDBDBD',
   canvas: '#EEEEEE',
+  zone: '#AAAAAA',
 }
 
 const styles = {
+  resourceZones: {
+    root: {
+      display: 'flex',
+      background: colours.zone,
+      width: '100%',
+      overflow: 'hidden'
+    },
+  },
   events: {
     root: {
       alignItems: 'center',
@@ -20,7 +29,7 @@ const styles = {
       borderRadius: 3,
       color: '#fff',
       fontSize: 12,
-      width: 'inherit',
+      width: '100%',
       minWidth: 1,
       overflow: 'hidden'
     },
@@ -107,7 +116,7 @@ export const axesDefaults: AxesConfig = {
             <div
               key={tick.startTime.getTime()}
               style={{ ...styles.timeAxis.root, width: tick.width }}>
-              <span style={styles.timeAxis.cell}>{format(tick.startTime, 'DD')}</span>
+              <span style={styles.timeAxis.cell}>{format(tick.startTime, 'MM DD')}</span>
             </div>
           )
         },
@@ -207,5 +216,14 @@ export const featuresDefaults: FeaturesConfig = {
     external: {
       enabled: false,
     },
+  },
+  resourceZones: {
+    zones: [],
+    renderer: () => <div style={styles.resourceZones.root}></div>,
+  },
+  lines: {
+    lines: [],
+    lineRenderer: () => null,
+    headerRenderer: () => null,
   }
 }

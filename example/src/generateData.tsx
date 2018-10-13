@@ -1,4 +1,4 @@
-import { Assignment, Resource, Event } from '../../index.d';
+import { Assignment, Resource, Event, ResourceZone } from '../../index.d';
 
 const colours = ['#2cb743', '#0838fa', '#1e95a4']
 
@@ -19,10 +19,11 @@ const randomColour = () => {
   return colours[index];
 }
 
-export const generateData = (start: Date, end: Date, resourceNumber: number, eventsPerResource: number): { assignments: Assignment[], resources: Resource[], events: Event[] } => {
+export const generateData = (start: Date, end: Date, resourceNumber: number, eventsPerResource: number, zonesPerResource: number): { assignments: Assignment[], resources: Resource[], events: Event[], resourceZones: ResourceZone[] } => {
   const resources: Resource[] = [];
   const events: Event[] = [];
   const assignments: Assignment[] = [];
+  const resourceZones: ResourceZone[] = [];
 
   for (let i = 0; i < resourceNumber; i++) {
     resources.push({ id: i, name: `Resource ${i}`, data: { age: randomBetween(1, 100) } });
@@ -33,7 +34,14 @@ export const generateData = (start: Date, end: Date, resourceNumber: number, eve
       events.push({ id: eventId, startTime: result.start, endTime: result.end, data: { name: `Event ${eventId}`, colour: randomColour() } })
       assignments.push({ id: eventId, eventId, resourceId: i });
     }
+
+    for (let j = 0; j < zonesPerResource; j++) {
+      const resourceZoneId = i * zonesPerResource + j;
+      let result = randomDateRange(start, end);
+
+      resourceZones.push({ id: resourceZoneId, resourceId: i, startTime: result.start, endTime: result.end });
+    }
   }
 
-  return { assignments, resources, events };
+  return { assignments, resources, events, resourceZones };
 }

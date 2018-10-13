@@ -62,8 +62,8 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
     const { resources, events, assignments, axes, features, assignmentRenderer } = this.props;
 
     return (
-      <ViewDataProvider ref={this.viewDataProvider} axesConfig={axes} resources={resources} events={events} assignments={assignments}>
-        {({ start, end, ticks, resourceElements, resourceAssignments }) => {
+      <ViewDataProvider ref={this.viewDataProvider} featuresConfig={features} axesConfig={axes} resources={resources} events={events} assignments={assignments}>
+        {({ start, end, ticks, resourceElements, resourceAssignments, resourceZones }) => {
           return (
             <DragContextProvider ref={this.dragContextProvider} config={features.dragDrop}>
               {(dragContext) => {
@@ -106,7 +106,9 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                                 ref={this.assignmentGrid}
                                 ticks={ticks}
                                 axesConfig={axes}
+                                feautresConfig={features}
                                 resourceElements={resourceElements}
+                                resourceZones={resourceZones}
                                 resources={resources}
                                 onScroll={onScroll}
                                 assignmentRenderer={assignmentRenderer}

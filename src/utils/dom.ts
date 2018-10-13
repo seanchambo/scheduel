@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, ResourceElement, Ticks } from '../../index.d';
+import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, ResourceElement, Ticks, ResourceZone, ResourceZoneMap, ResourceZoneElement } from '../../index.d';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -43,6 +43,37 @@ export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[],
   }
 
   return { startX, endX };
+}
+
+export const getResourceZones = (
+  zones: ResourceZone[],
+  resources: Resource[],
+  axesConfig: AxesConfig,
+  ticks: Ticks,
+  start: Date,
+  end: Date,
+): ResourceZoneMap => {
+  const resourceZones: ResourceZoneMap = new Map<Resource, ResourceZoneElement[]>();
+  const resourceMap: { [key: string]: Resource } = {};
+  const zoneMap: { [key: string]: ResourceZone } = {};
+
+  for (const resource of resources) {
+    resourceMap[resource.id] = resource;
+    resourceZones.set(resource, []);
+  }
+
+  for (const zone of zones) {
+    if (areRangesOverlapping(zone.startTime, zone.endTime, start, end)) {
+      const resource = resourceMap[zone.resourceId];
+      if (!resource) { continue; }
+
+      const { startX, endX } = getCoordinatesForTimeSpan(zone.startTime, zone.endTime, ticks.minor, start, end);
+      const zoneElement: ResourceZoneElement = { startX, endX, resourceZone: zone };
+      resourceZones.get(resource).push(zoneElement);
+    }
+  }
+
+  return resourceZones;
 }
 
 interface ResourceEventItem {

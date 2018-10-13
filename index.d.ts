@@ -91,6 +91,13 @@ export declare interface TickConfig {
 }
 
 export declare type ResourceAssignmentMap = Map<Resource, AssignmentElement[]>;
+export declare type ResourceZoneMap = Map<Resource, ResourceZoneElement[]>;
+
+export declare interface ResourceZoneElement {
+  startX: number;
+  endX: number;
+  resourceZone: ResourceZone;
+}
 
 export declare interface ResourceElement {
   depth: number;
@@ -131,8 +138,8 @@ export declare interface ResourceColumn {
 
 export declare interface FeaturesConfig {
   dragDrop?: DragDropConfig;
-  resourceZones?: ResourceZonesConfig | false;
-  lines?: LinesConfig | false;
+  resourceZones?: ResourceZonesConfig;
+  lines?: LinesConfig;
 }
 
 export declare interface InternalDragDropPreviewContext {
@@ -205,6 +212,29 @@ export declare interface ExternalDragDropConfig {
   context?: ExternalDragContext;
 }
 
-export declare interface ResourceZonesConfig { }
+export declare interface ResourceZone {
+  id: number | string;
+  resourceId: number | string;
+  startTime: Date;
+  endTime: Date;
+  data?: { [key: string]: any };
+}
 
-export declare interface LinesConfig { }
+export declare type ResourceZoneRenderer = (zone: ResourceZone, resource: Resource) => React.ReactNode;
+
+export declare interface ResourceZonesConfig {
+  zones?: ResourceZone[];
+  renderer?: ResourceZoneRenderer;
+}
+
+export declare interface Line {
+  id: number | string;
+  date: Date;
+  data?: { [key: string]: any };
+}
+
+export declare interface LinesConfig {
+  lines?: Line[];
+  lineRenderer?: (line: Line) => React.ReactNode;
+  headerRenderer?: (line: Line) => React.ReactNode;
+}

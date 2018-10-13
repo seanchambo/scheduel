@@ -2,10 +2,11 @@ import * as React from 'react';
 import { AutoSizer, Grid, OnScrollCallback } from 'react-virtualized';
 const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
-import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource } from '../../index.d';
+import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource, ResourceZoneMap, FeaturesConfig } from '../../index.d';
 
 import ResourceTimeline from './ResourceTimeline';
 import AssignmentElement from './AssignmentElement';
+import ResourceZoneElement from './ResourceZoneElement';
 
 interface AssignmentGridProps {
   ticks: Ticks;
@@ -13,9 +14,11 @@ interface AssignmentGridProps {
   resourceElements: ResourceElement[];
   resources: Resource[];
   resourceAssignments: ResourceAssignmentMap;
+  resourceZones: ResourceZoneMap;
   dragDropConfig: DragDropConfig;
   dragContext: DragContext;
   assignmentRenderer: AssignmentRenderer;
+  feautresConfig: FeaturesConfig;
   onScroll: OnScrollCallback;
 }
 
@@ -51,12 +54,16 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
 
   _renderRow = ({ rowIndex, key, style }) => {
     const resource = this.props.resources[rowIndex];
-    const items = this.props.resourceAssignments.get(resource);
+    const height = this.props.resourceElements[rowIndex].pixels;
+    const assignments = this.props.resourceAssignments.get(resource);
+    const zones = this.props.resourceZones.get(resource);
+
+    let zoneElements: React.ReactNode[];
     let minorTicks: React.ReactNode[];
     let majorTicks: React.ReactNode[];
     let resourceTick: React.ReactNode;
 
-    const assignmentElements = items.map(element =>
+    const assignmentElements = assignments.map(element =>
       <AssignmentElement
         key={element.assignment.id}
         element={element}
@@ -67,6 +74,16 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
         dragContext={this.props.dragContext}
         axesConfig={this.props.axesConfig} />
     );
+
+    if (this.props.feautresConfig.resourceZones.renderer) {
+      zoneElements = zones.map(zone =>
+        <ResourceZoneElement
+          element={zone}
+          resource={resource}
+          height={height}
+          renderer={this.props.feautresConfig.resourceZones.renderer} />
+      )
+    }
 
     if (this.props.axesConfig.time.ticks.major.tickRenderer) {
       let left: number = 0;
@@ -113,13 +130,16 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
           ticks={this.props.ticks}
           axesConfig={this.props.axesConfig}
           dragContext={this.props.dragContext}>
-          <div style={{ ...styles.resourceTimeline.inner, zIndex: 1 }}>
-            {assignmentElements}
-          </div>
           <div style={styles.resourceTimeline.inner}>
             {majorTicks}
             {minorTicks}
             {resourceTick}
+          </div>
+          <div style={styles.resourceTimeline.inner}>
+            {zoneElements}
+          </div>
+          <div style={styles.resourceTimeline.inner}>
+            {assignmentElements}
           </div>
         </ResourceTimeline>
       </div>
