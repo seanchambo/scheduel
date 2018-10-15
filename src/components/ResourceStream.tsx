@@ -4,7 +4,6 @@ import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
-
 import { Resource, AxesConfig, DragContext, ResourceElement, ResourceAssignmentMap, DragDropConfig, ExternalDragDropConfig } from '../../index.d';
 
 interface ResourceStreamProps {
@@ -90,6 +89,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
 
   render() {
     const headerHeight = this.props.axesConfig.time.ticks.major.rowHeight + this.props.axesConfig.time.ticks.minor.rowHeight;
+    const maxHeight = this.props.resourceElements.reduce((acc, element) => acc + element.pixels, 0) + scrollbarSize();
 
     return (
       <ScrollSync>
@@ -112,6 +112,8 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
               <div style={{ ...styles.body, width: this.props.axesConfig.resource.width }}>
                 <AutoSizer disableWidth>
                   {({ height }) => {
+                    const actualHeight = maxHeight < height ? maxHeight : height;
+
                     return (
                       <Grid
                         ref={this.grid}
@@ -123,7 +125,7 @@ class ResourceStream extends React.PureComponent<ResourceStreamProps> {
                         columnWidth={this._getColumnWidth}
                         overscanColumnCount={10}
                         overscanRowCount={10}
-                        height={height}
+                        height={actualHeight}
                         rowCount={this.props.resources.length + 1}
                         rowHeight={this._getResourceHeight}
                         width={this.props.axesConfig.resource.width}

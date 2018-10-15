@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { ResourceZoneElement as ResourceZoneElementInterface, ResourceZoneRenderer, Resource } from '../../index.d';
 
-
 interface ResourceZoneElementProps {
   element: ResourceZoneElementInterface;
   resource: Resource;

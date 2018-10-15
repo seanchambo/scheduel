@@ -14,7 +14,7 @@ const end = new Date(new Date().setMonth(start.getMonth() + 2));
 class App extends React.Component {
   state = {
     layout: 'stack',
-    ...generateData(start, end, 5, 10, 2),
+    ...generateData(start, end, 1000, 10, 2, 2),
   }
 
   updateEvent = (assignment: Assignment, resource: Resource, event: Event, date: Date) => {
@@ -42,7 +42,7 @@ class App extends React.Component {
   }
 
   regenerate = () => {
-    this.setState({ ...generateData(start, end, 5, 10, 2) });
+    this.setState({ ...generateData(start, end, 1000, 10, 2, 2) });
   }
 
   public render() {
@@ -70,6 +70,9 @@ class App extends React.Component {
               },
               resourceZones: {
                 zones: this.state.resourceZones,
+              },
+              lines: {
+                lines: this.state.lines,
               }
             }}
             axes={{

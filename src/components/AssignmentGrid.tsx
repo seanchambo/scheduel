@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { AutoSizer, Grid, OnScrollCallback } from 'react-virtualized';
-const scrollbarSize = require('dom-helpers/util/scrollbarSize');
+import { Grid, OnScrollCallback } from 'react-virtualized';
 
-import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource, ResourceZoneMap, FeaturesConfig } from '../../index.d';
+import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource, ResourceZoneMap, FeaturesConfig, LineElement } from '../../index.d';
 
 import ResourceTimeline from './ResourceTimeline';
 import AssignmentElement from './AssignmentElement';
@@ -12,6 +11,7 @@ interface AssignmentGridProps {
   ticks: Ticks;
   axesConfig: AxesConfig;
   resourceElements: ResourceElement[];
+  lineElements: LineElement[];
   resources: Resource[];
   resourceAssignments: ResourceAssignmentMap;
   resourceZones: ResourceZoneMap;
@@ -20,6 +20,8 @@ interface AssignmentGridProps {
   assignmentRenderer: AssignmentRenderer;
   feautresConfig: FeaturesConfig;
   onScroll: OnScrollCallback;
+  width: number;
+  height: number;
 }
 
 const styles = {
@@ -32,17 +34,6 @@ const styles = {
       height: '100%',
     },
   },
-  timeTick: {
-    position: 'absolute' as 'absolute',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column' as 'column',
-  },
-  resourceTick: {
-    position: 'absolute' as 'absolute',
-    width: '100%',
-    display: 'flex',
-  }
 };
 
 class AssignmentGrid extends React.Component<AssignmentGridProps> {
@@ -59,9 +50,6 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
     const zones = this.props.resourceZones.get(resource);
 
     let zoneElements: React.ReactNode[];
-    let minorTicks: React.ReactNode[];
-    let majorTicks: React.ReactNode[];
-    let resourceTick: React.ReactNode;
 
     const assignmentElements = assignments.map(element =>
       <AssignmentElement
@@ -85,42 +73,6 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
       )
     }
 
-    if (this.props.axesConfig.time.ticks.major.tickRenderer) {
-      let left: number = 0;
-
-      majorTicks = this.props.ticks.major.map(tick => {
-        left += tick.width;
-        if (!tick.show) { return null; }
-
-        return (
-          <div style={{ ...styles.timeTick, left }} key={`${tick.startTime.getTime()}-major-tick`}>
-            {this.props.axesConfig.time.ticks.major.tickRenderer(tick)}
-          </div>
-        )
-      });
-    }
-
-    if (this.props.axesConfig.time.ticks.minor.tickRenderer) {
-      let left: number = 0;
-
-      minorTicks = this.props.ticks.minor.map(tick => {
-        left += tick.width;
-        if (!tick.show) { return null; }
-
-        return (
-          <div style={{ ...styles.timeTick, left }} key={`${tick.startTime.getTime()}-minor-tick`}>
-            {this.props.axesConfig.time.ticks.minor.tickRenderer(tick)}
-          </div>
-        )
-      });
-    }
-
-    if (this.props.axesConfig.resource.tickRenderer) {
-      resourceTick = <div style={{ ...styles.resourceTick, bottom: 0 }}>
-        {this.props.axesConfig.resource.tickRenderer(resource)}
-      </div>
-    }
-
     return (
       <div key={key} style={style}>
         <ResourceTimeline
@@ -130,11 +82,6 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
           ticks={this.props.ticks}
           axesConfig={this.props.axesConfig}
           dragContext={this.props.dragContext}>
-          <div style={styles.resourceTimeline.inner}>
-            {majorTicks}
-            {minorTicks}
-            {resourceTick}
-          </div>
           <div style={styles.resourceTimeline.inner}>
             {zoneElements}
           </div>
@@ -154,31 +101,19 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
   }
 
   render() {
-    const maxWidth = this.props.axesConfig.time.ticks.minor.width * this.props.ticks.minor.length + scrollbarSize();
-    const maxHeight = this.props.resourceElements.reduce((acc, element) => acc + element.pixels, 0) + scrollbarSize();
-
     return (
-      <AutoSizer>
-        {({ width, height }) => {
-          const actualWidth = maxWidth < width ? maxWidth : width;
-          const actualHeight = maxHeight < height ? maxHeight : height;
-
-          return (
-            <Grid
-              ref={this.grid}
-              onScroll={this.props.onScroll}
-              columnCount={1}
-              columnWidth={this._getColumnWidth}
-              height={actualHeight}
-              width={actualWidth}
-              overscanRowCount={10}
-              cellRenderer={this._renderRow}
-              rowHeight={this._getRowHeight}
-              rowCount={this.props.resources.length} />
-          )
-        }}
-      </AutoSizer>
-    );
+      <Grid
+        ref={this.grid}
+        onScroll={this.props.onScroll}
+        columnCount={1}
+        columnWidth={this._getColumnWidth}
+        height={this.props.height}
+        width={this.props.width}
+        overscanRowCount={10}
+        cellRenderer={this._renderRow}
+        rowHeight={this._getRowHeight}
+        rowCount={this.props.resources.length} />
+    )
   }
 }
 

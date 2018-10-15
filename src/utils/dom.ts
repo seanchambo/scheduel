@@ -1,6 +1,6 @@
 import * as areRangesOverlapping from 'date-fns/are_ranges_overlapping';
 
-import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, ResourceElement, Ticks, ResourceZone, ResourceZoneMap, ResourceZoneElement } from '../../index.d';
+import { Tick, AxesConfig, ResourceAssignmentMap, Event, Resource, Assignment, AssignmentElement, ResourceElement, Ticks, ResourceZone, ResourceZoneMap, ResourceZoneElement, Line, LineElement } from '../../index.d';
 
 export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[], timeSpanStart: Date, timeSpanEnd: Date): { startX: number, endX: number } => {
   let currentX: number = 0;
@@ -48,14 +48,12 @@ export const getCoordinatesForTimeSpan = (start: Date, end: Date, ticks: Tick[],
 export const getResourceZones = (
   zones: ResourceZone[],
   resources: Resource[],
-  axesConfig: AxesConfig,
   ticks: Ticks,
   start: Date,
   end: Date,
 ): ResourceZoneMap => {
   const resourceZones: ResourceZoneMap = new Map<Resource, ResourceZoneElement[]>();
   const resourceMap: { [key: string]: Resource } = {};
-  const zoneMap: { [key: string]: ResourceZone } = {};
 
   for (const resource of resources) {
     resourceMap[resource.id] = resource;
@@ -74,6 +72,24 @@ export const getResourceZones = (
   }
 
   return resourceZones;
+}
+
+export const getLines = (
+  lines: Line[],
+  ticks: Ticks,
+  start: Date,
+  end: Date,
+): LineElement[] => {
+  const lineElements: LineElement[] = [];
+
+  for (const line of lines) {
+    if (start <= line.date && line.date <= end) {
+      const x = getPositionFromDate(line.date, ticks.minor);
+      lineElements.push({ x, line });
+    }
+  }
+
+  return lineElements;
 }
 
 interface ResourceEventItem {

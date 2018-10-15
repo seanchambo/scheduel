@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
+import { AutoSizer } from 'react-virtualized';
+const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
 import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig, ExternalDragDropConfig } from '../../index.d';
 
@@ -9,6 +11,7 @@ import DragContextProvider from './DragContextProvider';
 import TimeHeader from './TimeHeader';
 import DragLayer from './DragLayer';
 import AssignmentGrid from './AssignmentGrid';
+import LinesStream from './LinesStream';
 
 interface SchedulerPanelProps {
   assignments: Assignment[];
@@ -63,7 +66,10 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
 
     return (
       <ViewDataProvider ref={this.viewDataProvider} featuresConfig={features} axesConfig={axes} resources={resources} events={events} assignments={assignments}>
-        {({ start, end, ticks, resourceElements, resourceAssignments, resourceZones }) => {
+        {({ start, end, ticks, resourceElements, resourceAssignments, resourceZones, lineElements }) => {
+          const maxWidth = axes.time.ticks.minor.width * ticks.minor.length + scrollbarSize();
+          const maxHeight = resourceElements.reduce((acc, element) => acc + element.pixels, 0) + scrollbarSize();
+
           return (
             <DragContextProvider ref={this.dragContextProvider} config={features.dragDrop}>
               {(dragContext) => {
@@ -98,23 +104,51 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                             <div style={timeHeaderStyle}>
                               <TimeHeader
                                 scrollLeft={scrollLeft}
+                                lineElements={lineElements}
+                                featuresConfig={features}
                                 ticks={ticks}
                                 axesConfig={axes} />
                             </div>
                             <div style={styles.timelineBody}>
-                              <AssignmentGrid
-                                ref={this.assignmentGrid}
-                                ticks={ticks}
-                                axesConfig={axes}
-                                feautresConfig={features}
-                                resourceElements={resourceElements}
-                                resourceZones={resourceZones}
-                                resources={resources}
-                                onScroll={onScroll}
-                                assignmentRenderer={assignmentRenderer}
-                                dragContext={dragContext}
-                                dragDropConfig={features.dragDrop}
-                                resourceAssignments={resourceAssignments} />
+                              <AutoSizer>
+                                {({ width, height }) => {
+                                  const actualWidth = maxWidth < width ? maxWidth : width;
+                                  const actualHeight = maxHeight < height ? maxHeight : height;
+
+                                  return (
+                                    <React.Fragment>
+                                      <LinesStream
+                                        width={actualWidth}
+                                        height={actualHeight}
+                                        innerWidth={maxWidth}
+                                        innerHeight={maxHeight}
+                                        scrollLeft={scrollLeft}
+                                        scrollTop={scrollTop}
+                                        ticks={ticks}
+                                        axesConfig={axes}
+                                        featuresConfig={features}
+                                        lineElements={lineElements}
+                                        resourceElements={resourceElements} />
+                                      <AssignmentGrid
+                                        ref={this.assignmentGrid}
+                                        width={actualWidth}
+                                        height={actualHeight}
+                                        ticks={ticks}
+                                        axesConfig={axes}
+                                        feautresConfig={features}
+                                        resourceElements={resourceElements}
+                                        lineElements={lineElements}
+                                        resourceZones={resourceZones}
+                                        resources={resources}
+                                        onScroll={onScroll}
+                                        assignmentRenderer={assignmentRenderer}
+                                        dragContext={dragContext}
+                                        dragDropConfig={features.dragDrop}
+                                        resourceAssignments={resourceAssignments} />
+                                    </React.Fragment>
+                                  )
+                                }}
+                              </AutoSizer>
                             </div>
                           </div>
                         </div>

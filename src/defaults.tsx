@@ -18,6 +18,24 @@ const styles = {
       overflow: 'hidden'
     },
   },
+  lines: {
+    header: {
+      borderRadius: 10,
+      height: 10,
+      width: 10,
+      transform: 'rotate(45deg)',
+      border: '2px solid red',
+      backgroundColor: 'white',
+    },
+    line: {
+      borderLeftColor: colours.border,
+      borderLeftStyle: 'dotted' as 'dotted',
+      borderLeftWidth: 1,
+      flex: '1',
+      width: 1,
+      zIndex: -1,
+    }
+  },
   events: {
     root: {
       alignItems: 'center',
@@ -223,7 +241,13 @@ export const featuresDefaults: FeaturesConfig = {
   },
   lines: {
     lines: [],
-    lineRenderer: () => null,
-    headerRenderer: () => null,
+    line: {
+      renderer: () => <div style={styles.lines.line}></div>,
+      width: 1,
+    },
+    header: {
+      renderer: () => <div style={styles.lines.header}></div>,
+      width: 10,
+    },
   }
 }

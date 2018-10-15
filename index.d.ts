@@ -233,8 +233,19 @@ export declare interface Line {
   data?: { [key: string]: any };
 }
 
+export declare interface LineElement {
+  x: number;
+  line: Line;
+}
+
 export declare interface LinesConfig {
   lines?: Line[];
-  lineRenderer?: (line: Line) => React.ReactNode;
-  headerRenderer?: (line: Line) => React.ReactNode;
+  line?: {
+    renderer?: (line: Line) => React.ReactNode;
+    width?: number;
+  };
+  header?: {
+    renderer?: (line: Line) => React.ReactNode;
+    width?: number;
+  };
 }

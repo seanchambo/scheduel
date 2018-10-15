@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import { Assignment, Event, ResourceAssignmentMap, Resource, ResourceElement, Ticks, AxesConfig, FeaturesConfig, ResourceZoneMap } from '../../index.d';
+import { Assignment, Event, ResourceAssignmentMap, Resource, ResourceElement, Ticks, AxesConfig, FeaturesConfig, ResourceZoneMap, LineElement } from '../../index.d';
 
 import { getTicks } from '../utils/ticks';
 import { getStartEndForTimeRange } from '../utils/timeSpan';
-import { getResourceElementsAndHeights, getResourceZones } from '../utils/dom';
+import { getResourceElementsAndHeights, getResourceZones, getLines } from '../utils/dom';
 
 interface ViewDataProviderProps {
   axesConfig: AxesConfig;
@@ -21,6 +21,7 @@ interface ViewDataProviderState {
   ticks: Ticks;
   resourceAssignments: ResourceAssignmentMap;
   resourceZones: ResourceZoneMap;
+  lineElements: LineElement[];
   resourceElements: ResourceElement[];
   assignments: Assignment[];
   resources: Resource[];
@@ -36,6 +37,7 @@ class ViewDataProvider extends React.Component<ViewDataProviderProps, ViewDataPr
     ticks: { major: null, minor: null },
     resourceAssignments: null,
     resourceZones: null,
+    lineElements: null,
     resourceElements: [],
     assignments: this.props.assignments,
     resources: this.props.resources,
@@ -48,7 +50,8 @@ class ViewDataProvider extends React.Component<ViewDataProviderProps, ViewDataPr
     if (this.state.start.getTime() !== nextState.start.getTime()) return true;
     if (this.state.end.getTime() !== nextState.end.getTime()) return true;
     if (this.state.axesConfig !== nextState.axesConfig) return true;
-    if (this.state.featuresConfig.resourceZones !== nextState.featuresConfig.resourceZones) return true;
+    if (this.state.featuresConfig.resourceZones.zones !== nextState.featuresConfig.resourceZones.zones) return true;
+    if (this.state.featuresConfig.lines.lines !== nextState.featuresConfig.lines.lines) return true;
     if (this.state.resourceAssignments !== nextState.resourceAssignments) return true;
     if (this.state.resourceElements !== nextState.resourceElements) return true;
     return false;
@@ -56,7 +59,7 @@ class ViewDataProvider extends React.Component<ViewDataProviderProps, ViewDataPr
 
   static getDerivedStateFromProps(props: ViewDataProviderProps, state: ViewDataProviderState): ViewDataProviderState {
     const { axesConfig, assignments, resources, events, featuresConfig } = props;
-    let { start, end, ticks, resourceAssignments, resourceElements, resourceZones } = state;
+    let { start, end, ticks, resourceAssignments, resourceElements, resourceZones, lineElements } = state;
 
     if (state.axesConfig.time.range !== axesConfig.time.range || state.axesConfig.time.ticks !== axesConfig.time.ticks || !start) {
       const startEnd = getStartEndForTimeRange(axesConfig.time.range, axesConfig.time.ticks);
@@ -78,11 +81,15 @@ class ViewDataProvider extends React.Component<ViewDataProviderProps, ViewDataPr
       resourceElements = result.resourceElements;
     }
 
-    if (state.featuresConfig.resourceZones !== featuresConfig.resourceZones || !resourceZones) {
-      resourceZones = getResourceZones(featuresConfig.resourceZones.zones, resources, axesConfig, ticks, start, end);
+    if (state.featuresConfig.resourceZones.zones !== featuresConfig.resourceZones.zones || !resourceZones) {
+      resourceZones = getResourceZones(featuresConfig.resourceZones.zones, resources, ticks, start, end);
     }
 
-    return { ...state, start, end, ticks, resourceAssignments, resourceElements, assignments, resources, events, axesConfig, resourceZones };
+    if (state.featuresConfig.lines.lines !== featuresConfig.lines.lines || !lineElements) {
+      lineElements = getLines(featuresConfig.lines.lines, ticks, start, end);
+    }
+
+    return { ...state, start, end, ticks, resourceAssignments, resourceElements, assignments, resources, events, axesConfig, resourceZones, lineElements };
   }
 
   render() {
