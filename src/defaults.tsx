@@ -241,6 +241,10 @@ export const featuresDefaults: FeaturesConfig = {
   },
   lines: {
     lines: [],
+    listeners: {
+      drag: () => { },
+      drop: () => { },
+    },
     line: {
       renderer: () => <div style={styles.lines.line}></div>,
       width: 1,

@@ -53,7 +53,7 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
 
     const assignmentElements = assignments.map(element =>
       <AssignmentElement
-        key={element.assignment.id}
+        key={`assignment-${element.assignment.id}`}
         element={element}
         ticks={this.props.ticks}
         resource={resource}
@@ -66,6 +66,7 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
     if (this.props.feautresConfig.resourceZones.renderer) {
       zoneElements = zones.map(zone =>
         <ResourceZoneElement
+          key={`zone-${zone.resourceZone.id}`}
           element={zone}
           resource={resource}
           height={height}

@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
 
-import { DragContext, AxesConfig, Ticks, DragDropConfig, ResourceElement, InternalDragDropPreviewContext, ExternalDragDropPreviewContext } from '../../index.d';
+import { DragContext, AxesConfig, Ticks, DragDropConfig, ResourceElement, InternalDragDropPreviewContext, ExternalDragDropPreviewContext, FeaturesConfig } from '../../index.d';
 
 import { getDateFromPosition, getCoordinatesForTimeSpan, getPositionFromDate } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
@@ -18,6 +18,7 @@ interface DragLayerProps {
   dragContext: DragContext;
   assignmentGrid: React.RefObject<AssignmentGrid>;
   axesConfig: AxesConfig;
+  featuresConfig: FeaturesConfig;
   ticks: Ticks;
   dragDropConfig: DragDropConfig;
   resourceElements: ResourceElement[];
@@ -56,7 +57,9 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       end,
       domOffset,
       pointerOffset,
-      itemType
+      itemType,
+      featuresConfig,
+      item,
     } = this.props
 
 
@@ -75,7 +78,13 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
     const panel: Element = ReactDOM.findDOMNode(assignmentGrid.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
-    let currentStart = getDateFromPosition(xFromSchedulerStart, ticks.minor);
+    let currentStart: Date;
+
+    if (itemType === itemTypes.Line) {
+      currentStart = getDateFromPosition(xFromSchedulerStart + featuresConfig.lines.header.width / 2, ticks.minor);
+    } else {
+      currentStart = getDateFromPosition(xFromSchedulerStart, ticks.minor);
+    }
 
     if (
       (itemType === itemTypes.Assignment && dragDropConfig.internal.enabled && dragDropConfig.internal.snapToResource) ||
@@ -145,6 +154,13 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       }
 
       content = dragDropConfig.external.previewRenderer(context);
+    }
+
+    if (itemType === itemTypes.Line) {
+      const line = featuresConfig.lines.lines.find(line => line.id === item.id);
+      const style = { transform: `translate(${x}px, ${item.y}px)` }
+
+      content = <div style={style}>{featuresConfig.lines.header.renderer(line)}</div>
     }
 
     return (

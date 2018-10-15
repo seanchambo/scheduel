@@ -12,6 +12,7 @@ export declare interface Event {
   id: number | string;
   startTime: Date;
   endTime: Date;
+  draggable?: boolean;
   data?: { [key: string]: any };
 }
 
@@ -230,6 +231,7 @@ export declare interface ResourceZonesConfig {
 export declare interface Line {
   id: number | string;
   date: Date;
+  draggable?: boolean;
   data?: { [key: string]: any };
 }
 
@@ -240,6 +242,10 @@ export declare interface LineElement {
 
 export declare interface LinesConfig {
   lines?: Line[];
+  listeners?: {
+    drag?: (line: Line) => void,
+    drop?: (line: Line, date: Date) => void,
+  };
   line?: {
     renderer?: (line: Line) => React.ReactNode;
     width?: number;

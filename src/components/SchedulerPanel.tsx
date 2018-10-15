@@ -12,6 +12,7 @@ import TimeHeader from './TimeHeader';
 import DragLayer from './DragLayer';
 import AssignmentGrid from './AssignmentGrid';
 import LinesStream from './LinesStream';
+import LineHeader from './LineHeader';
 
 interface SchedulerPanelProps {
   assignments: Assignment[];
@@ -30,6 +31,7 @@ const styles = {
     width: '100%',
   },
   timeline: {
+    height: '100%',
     flex: 1,
     display: 'flex',
     flexDirection: 'column' as 'column',
@@ -73,11 +75,6 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
           return (
             <DragContextProvider ref={this.dragContextProvider} config={features.dragDrop}>
               {(dragContext) => {
-                const timeHeaderStyle = {
-                  ...styles.timeHeader,
-                  height: axes.time.ticks.major.rowHeight + axes.time.ticks.minor.rowHeight,
-                }
-
                 return (
                   <ScrollSync>
                     {({ onScroll, scrollLeft, scrollTop }) => {
@@ -89,6 +86,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                             assignmentGrid={this.assignmentGrid}
                             dragContext={dragContext}
                             axesConfig={axes}
+                            featuresConfig={features}
                             ticks={ticks}
                             start={start}
                             end={end} />
@@ -101,22 +99,35 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                             resourceElements={resourceElements}
                             resourceAssignments={resourceAssignments} />
                           <div style={styles.timeline}>
-                            <div style={timeHeaderStyle}>
-                              <TimeHeader
-                                scrollLeft={scrollLeft}
-                                lineElements={lineElements}
-                                featuresConfig={features}
-                                ticks={ticks}
-                                axesConfig={axes} />
-                            </div>
-                            <div style={styles.timelineBody}>
-                              <AutoSizer>
-                                {({ width, height }) => {
-                                  const actualWidth = maxWidth < width ? maxWidth : width;
-                                  const actualHeight = maxHeight < height ? maxHeight : height;
+                            <AutoSizer>
+                              {({ width, height }) => {
+                                const actualWidth = maxWidth < width ? maxWidth : width;
+                                const headerHeight = axes.time.ticks.major.rowHeight + axes.time.ticks.minor.rowHeight;
+                                height -= headerHeight;
+                                const actualHeight = maxHeight < height ? maxHeight : height;
 
-                                  return (
-                                    <React.Fragment>
+                                return (
+                                  <div style={{ height: height + headerHeight, width }}>
+                                    <div style={{ ...styles.timeHeader, height: headerHeight, width: actualWidth }}>
+                                      <TimeHeader
+                                        height={headerHeight}
+                                        scrollLeft={scrollLeft}
+                                        width={actualWidth}
+                                        innerWidth={maxWidth}
+                                        ticks={ticks}
+                                        axesConfig={axes} />
+                                      <LineHeader
+                                        assignmentGrid={this.assignmentGrid}
+                                        scrollLeft={scrollLeft}
+                                        width={actualWidth}
+                                        innerWidth={maxWidth}
+                                        height={headerHeight}
+                                        lineElements={lineElements}
+                                        ticks={ticks}
+                                        axesConfig={axes}
+                                        featuresConfig={features} />
+                                    </div>
+                                    <div style={{ ...styles.timelineBody, height }}>
                                       <LinesStream
                                         width={actualWidth}
                                         height={actualHeight}
@@ -145,11 +156,11 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                                         dragContext={dragContext}
                                         dragDropConfig={features.dragDrop}
                                         resourceAssignments={resourceAssignments} />
-                                    </React.Fragment>
-                                  )
-                                }}
-                              </AutoSizer>
-                            </div>
+                                    </div>
+                                  </div>
+                                )
+                              }}
+                            </AutoSizer>
                           </div>
                         </div>
                       )

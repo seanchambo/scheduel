@@ -5,7 +5,6 @@ import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
 import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer } from '../../index.d';
 import itemTypes from '../utils/itemTypes';
 
-
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
   axesConfig: AxesConfig;
@@ -32,7 +31,7 @@ interface AssignmentSourceDragObject {
 
 const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceDragObject> = {
   canDrag(props) {
-    return props.dragDropConfig.internal.enabled;
+    return props.dragDropConfig.internal.enabled && props.element.event.draggable !== false;
   },
   beginDrag(props, monitor, component) {
     props.dragContext.start(props.element.assignment, props.element.event, props.resource);

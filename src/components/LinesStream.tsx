@@ -69,11 +69,21 @@ class LinesStream extends React.PureComponent<LinesStreamProps> {
     let resourceTicks: React.ReactNode[];
 
     if (this.props.featuresConfig.lines.line.renderer) {
-      lineElements = this.props.lineElements.map(element =>
-        <div style={{ ...styles.line, left: element.x - this.props.featuresConfig.lines.line.width / 2 }}>
-          {this.props.featuresConfig.lines.line.renderer(element.line)}
-        </div>
-      )
+      lineElements = this.props.lineElements.map(element => {
+        const x = element.x - this.props.featuresConfig.lines.line.width / 2;
+
+        const style = {
+          ...styles.line,
+          transition: '0.1s ease-in-out',
+          transform: `translateX(${x}px)`,
+        };
+
+        return (
+          <div style={style} key={`line-${element.line.id}`}>
+            {this.props.featuresConfig.lines.line.renderer(element.line)}
+          </div>
+        )
+      });
     }
 
     if (this.props.axesConfig.time.ticks.major.tickRenderer) {
@@ -113,7 +123,7 @@ class LinesStream extends React.PureComponent<LinesStreamProps> {
         top += element.pixels;
 
         return (
-          <div style={{ ...styles.ticks.resource, top }}>
+          <div style={{ ...styles.ticks.resource, top }} key={`resource-${element.resource.id}`}>
             {this.props.axesConfig.resource.tickRenderer(element.resource)}
           </div>
         )

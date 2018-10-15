@@ -3,7 +3,7 @@ import Scheduler from 'scheduel';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
-import { Assignment, Resource, Event, ResourceRowLayout } from '../../index.d';
+import { Assignment, Resource, Event, ResourceRowLayout, Line } from '../../index.d';
 
 import { generateData } from './generateData';
 
@@ -33,6 +33,13 @@ class App extends React.Component {
     newEvents.splice(eventIndex, 1);
 
     this.setState({ assignments: newAssignments, events: newEvents });
+  }
+
+  updateLine = (line: Line, date: Date) => {
+    console.log(date);
+    let lines = this.state.lines.filter(l => l.id !== line.id);
+    lines = [...lines, { ...line, date }];
+    this.setState({ lines });
   }
 
   setLayout = (layout: ResourceRowLayout) => {
@@ -73,6 +80,9 @@ class App extends React.Component {
               },
               lines: {
                 lines: this.state.lines,
+                listeners: {
+                  drop: this.updateLine,
+                }
               }
             }}
             axes={{
