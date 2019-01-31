@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
+import { DropTarget } from 'intereactable';
+import { DropTargetSpecification } from 'intereactable/dist/DropTarget';
+import { RegisterRef } from 'intereactable/dist/DragSource';
 
 import { Ticks, AxesConfig, LineElement, FeaturesConfig } from '../../index.d';
 
@@ -8,7 +10,6 @@ import LineHeaderElement from './LineHeaderElement';
 import AssignmentGrid from './AssignmentGrid';
 import { getDateFromPosition } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
-import { roundTo } from '../utils/date';
 
 interface LineHeaderProps {
   assignmentGrid: React.RefObject<AssignmentGrid>;
@@ -20,7 +21,7 @@ interface LineHeaderProps {
   width: number;
   height: number;
   innerWidth: number;
-  connectDropTarget?: ConnectDropTarget;
+  registerRef?: RegisterRef;
 }
 
 const styles = {
@@ -37,9 +38,9 @@ const styles = {
   },
 };
 
-const lineHeaderTarget: DropTargetSpec<LineHeaderProps> = {
-  drop(props, monitor, component) {
-    const finish = monitor.getSourceClientOffset();
+const lineHeaderTarget: DropTargetSpecification<LineHeaderProps> = {
+  drop(props, monitor) {
+    const finish = monitor.getClientSourceOffset();
 
     const panel: Element = ReactDOM.findDOMNode(props.assignmentGrid.current.grid.current) as Element;
     const xFromPanel = finish.x + (props.featuresConfig.lines.header.width / 2) - panel.getBoundingClientRect().left;
@@ -50,9 +51,6 @@ const lineHeaderTarget: DropTargetSpec<LineHeaderProps> = {
   }
 }
 
-@DropTarget(itemTypes.Line, lineHeaderTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-}))
 class LineHeader extends React.Component<LineHeaderProps> {
   root: HTMLDivElement;
 
@@ -64,7 +62,7 @@ class LineHeader extends React.Component<LineHeaderProps> {
 
   setRootRef = (ref) => {
     this.root = ref;
-    this.props.connectDropTarget(ref);
+    this.props.registerRef(ref);
   }
 
   render() {
@@ -84,4 +82,4 @@ class LineHeader extends React.Component<LineHeaderProps> {
   }
 }
 
-export default LineHeader;
+export default DropTarget<LineHeaderProps>(itemTypes.Line, lineHeaderTarget, (monitor, registerRef) => ({ registerRef }))(LineHeader);

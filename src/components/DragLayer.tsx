@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { DragLayer as DragLayerWrapper, XYCoord } from 'react-dnd'
+import { DragLayer as DragLayerWrapper } from 'intereactable'
+import { XYCoordinate } from 'intereactable/dist/Monitor';
 
 import { DragContext, AxesConfig, Ticks, DragDropConfig, ResourceElement, InternalDragDropPreviewContext, ExternalDragDropPreviewContext, FeaturesConfig } from '../../index.d';
 
@@ -12,8 +13,8 @@ import AssignmentGrid from './AssignmentGrid';
 interface DragLayerProps {
   item?: any;
   itemType?: string;
-  domOffset?: XYCoord;
-  pointerOffset?: XYCoord;
+  domOffset?: XYCoordinate;
+  pointerOffset?: XYCoordinate;
   isDragging?: boolean;
   dragContext: DragContext;
   assignmentGrid: React.RefObject<AssignmentGrid>;
@@ -36,13 +37,6 @@ const layerStyles: React.CSSProperties = {
   height: '100%',
 }
 
-@DragLayerWrapper(monitor => ({
-  domOffset: monitor.getSourceClientOffset(),
-  pointerOffset: monitor.getClientOffset(),
-  isDragging: monitor.isDragging(),
-  itemType: monitor.getItemType(),
-  item: monitor.getItem(),
-}))
 class DragLayer extends React.PureComponent<DragLayerProps> {
   render() {
     const {
@@ -74,6 +68,7 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
     }
 
     let { x, y } = domOffset
+    console.log(x, y);
 
     const panel: Element = ReactDOM.findDOMNode(assignmentGrid.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
@@ -171,4 +166,10 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
   }
 }
 
-export default DragLayer;
+export default DragLayerWrapper<DragLayerProps>((monitor) => ({
+  domOffset: monitor.getClientSourceOffset(),
+  pointerOffset: monitor.getClientOffset(),
+  isDragging: monitor.isDragging(),
+  itemType: monitor.getItemType(),
+  item: monitor.getItem(),
+}))(DragLayer);

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
-import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
+import { DragSource } from 'intereactable';
+import { RegisterRef, DragSourceSpecification } from 'intereactable/dist/DragSource';
 
 import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer } from '../../index.d';
 import itemTypes from '../utils/itemTypes';
@@ -13,8 +13,7 @@ interface AssignmentElementProps {
   dragDropConfig: DragDropConfig;
   resource: Resource;
   assignmentRenderer: AssignmentRenderer;
-  connectDragSource?: ConnectDragSource;
-  connectDragPreview?: ConnectDragPreview;
+  registerRef?: RegisterRef,
 }
 
 const styles = {
@@ -25,20 +24,16 @@ const styles = {
   }
 }
 
-interface AssignmentSourceDragObject {
-  id: number | string;
-};
-
-const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceDragObject> = {
+const assignmentSource: DragSourceSpecification<AssignmentElementProps> = {
   canDrag(props) {
     return props.dragDropConfig.internal.enabled && props.element.event.draggable !== false;
   },
-  beginDrag(props, monitor, component) {
+  beginDrag(props) {
     props.dragContext.start(props.element.assignment, props.element.event, props.resource);
 
     return { id: props.element.assignment.id }
   },
-  endDrag(props, monitor, component) {
+  endDrag(props, monitor) {
     if (monitor.didDrop()) {
       const { date } = monitor.getDropResult();
       props.dragContext.end(true, date);
@@ -51,19 +46,9 @@ const assignmentSource: DragSourceSpec<AssignmentElementProps, AssignmentSourceD
   }
 }
 
-@DragSource(itemTypes.Assignment, assignmentSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  connectDragPreview: connect.dragPreview(),
-}))
 class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
-  componentDidMount() {
-    if (this.props.connectDragPreview) {
-      this.props.connectDragPreview(getEmptyImage(), { captureDraggingState: true });
-    }
-  }
-
   render() {
-    const { element, connectDragSource, resource } = this.props;
+    const { element, resource, registerRef } = this.props;
 
     const style = {
       ...styles.root,
@@ -73,12 +58,12 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
       transform: `translate(${this.props.element.startX}px, ${this.props.element.top}px)`,
     };
 
-    return connectDragSource(
-      <div style={style}>
+    return (
+      <div style={style} ref={registerRef}>
         {this.props.assignmentRenderer(element.assignment, element.event, resource)}
       </div>
     )
   }
 }
 
-export default AssignmentElement;
+export default DragSource<AssignmentElementProps>(itemTypes.Assignment, assignmentSource, (monitor, registerRef) => ({ registerRef }))(AssignmentElement);

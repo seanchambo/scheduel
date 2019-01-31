@@ -1,12 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { DropTarget, ConnectDropTarget, DropTargetSpec } from 'react-dnd';
+import { Grid } from 'react-virtualized';
+import { DropTarget } from 'intereactable';
+import { DropTargetSpecification } from 'intereactable/dist/DropTarget';
+import { RegisterRef } from 'intereactable/dist/DragSource';
 
 import { Resource, Ticks, DragContext, DragDropConfig, AxesConfig } from '../../index.d';
 
 import { getDateFromPosition } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
-import { Grid } from 'react-virtualized';
 import { roundTo } from '../utils/date';
 
 interface ResourceTimelineProps {
@@ -16,10 +18,9 @@ interface ResourceTimelineProps {
   dragContext: DragContext;
   dragDropConfig: DragDropConfig;
   axesConfig: AxesConfig;
-  connectAssignmentDropTarget?: ConnectDropTarget;
-  connectExternalDropTarget?: ConnectDropTarget;
   isAssignmentOver?: boolean;
   isExternalOver?: boolean;
+  registerRef?: RegisterRef;
 }
 
 const styles = {
@@ -33,9 +34,9 @@ const styles = {
   },
 };
 
-const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
+const resourceTarget: DropTargetSpecification<ResourceTimelineProps> = {
   drop(props, monitor) {
-    const finish = monitor.getSourceClientOffset();
+    const finish = monitor.getClientSourceOffset();
 
     const panel: Element = ReactDOM.findDOMNode(props.grid) as Element;
     const xFromPanel = finish.x - panel.getBoundingClientRect().left;
@@ -50,33 +51,30 @@ const resourceTarget: DropTargetSpec<ResourceTimelineProps> = {
   }
 }
 
-@DropTarget(itemTypes.Assignment, resourceTarget, (connect, monitor) => ({
-  connectAssignmentDropTarget: connect.dropTarget(),
-  isAssignmentOver: monitor.isOver(),
-}))
-@DropTarget(itemTypes.External, resourceTarget, (connect, monitor) => ({
-  connectExternalDropTarget: connect.dropTarget(),
-  isExternalOver: monitor.isOver(),
-}))
 class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   componentDidUpdate(prevProps: ResourceTimelineProps) {
-    if (this.props.isAssignmentOver && !prevProps.isAssignmentOver && this.props.dragDropConfig.internal.enabled) {
-      this.props.dragContext.update(this.props.resource);
+    const { isAssignmentOver, isExternalOver, dragDropConfig, dragContext, resource } = this.props;
+
+    if (isAssignmentOver && !prevProps.isAssignmentOver && dragDropConfig.internal.enabled) {
+      dragContext.update(resource);
     }
-    if (this.props.isExternalOver && !prevProps.isExternalOver && this.props.dragDropConfig.external.enabled) {
-      this.props.dragDropConfig.external.context.update(this.props.resource);
+    if (isExternalOver && !prevProps.isExternalOver && dragDropConfig.external.enabled) {
+      dragDropConfig.external.context.update(resource);
     }
   }
 
   render() {
-    return this.props.connectAssignmentDropTarget(
-      this.props.connectExternalDropTarget(
-        <div style={styles.root}>
-          {this.props.children}
-        </div>
-      )
+    const { registerRef } = this.props;
+
+    return (
+      <div style={styles.root} ref={registerRef}>
+        {this.props.children}
+      </div>
     )
   }
 }
 
-export default ResourceTimeline;
+export default DropTarget<ResourceTimelineProps>(itemTypes.Assignment, resourceTarget, (assignmentMonitor, registerRef) => ({
+  isAssignmentOver: assignmentMonitor.isOver(),
+  registerRef,
+}))(ResourceTimeline);

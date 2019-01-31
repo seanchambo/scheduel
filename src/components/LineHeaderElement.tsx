@@ -1,7 +1,8 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { DragSource, ConnectDragSource, DragSourceSpec, ConnectDragPreview } from 'react-dnd';
-import getEmptyImage from 'react-dnd-html5-backend/lib/getEmptyImage';
+// import * as ReactDOM from 'react-dom';
+import { DragSource } from 'intereactable';
+import { DragSourceSpecification } from 'intereactable/dist/DragSource';
+import { RegisterRef } from 'intereactable/dist/DropTarget';
 
 import { LineElement, FeaturesConfig, Ticks } from '../../index.d';
 
@@ -11,8 +12,7 @@ interface LineHeaderElementProps {
   element: LineElement;
   ticks: Ticks;
   featuresConfig: FeaturesConfig;
-  connectDragSource?: ConnectDragSource;
-  connectDragPreview?: ConnectDragPreview;
+  registerRef?: RegisterRef;
 }
 
 const styles = {
@@ -23,22 +23,20 @@ const styles = {
   }
 }
 
-interface LineHeaderElementSourceDragObject {
-  id: number | string;
-};
-
-const lineHeaderElementSource: DragSourceSpec<LineHeaderElementProps, LineHeaderElementSourceDragObject> = {
+const lineHeaderElementSource: DragSourceSpecification<LineHeaderElementProps> = {
   canDrag(props, monitor) {
     return props.element.line.draggable !== false;
   },
-  beginDrag(props, monitor, component) {
+  beginDrag(props, monitor) {
     props.featuresConfig.lines.listeners.drag(props.element.line);
 
-    const domElement: Element = ReactDOM.findDOMNode(component) as Element;
+    // TODO: Fix Me!
 
-    return { id: props.element.line.id, y: domElement.getBoundingClientRect().top }
+    // const domElement: Element = ReactDOM.findDOMNode(component) as Element;
+
+    return { id: props.element.line.id, y: 0 }
   },
-  endDrag(props, monitor, component) {
+  endDrag(props, monitor) {
     if (monitor.didDrop()) {
       const { date } = monitor.getDropResult();
       props.featuresConfig.lines.listeners.drop(props.element.line, date);
@@ -49,34 +47,24 @@ const lineHeaderElementSource: DragSourceSpec<LineHeaderElementProps, LineHeader
   }
 }
 
-@DragSource(itemTypes.Line, lineHeaderElementSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  connectDragPreview: connect.dragPreview(),
-}))
 class LineHeaderElement extends React.PureComponent<LineHeaderElementProps> {
-  componentDidMount() {
-    if (this.props.connectDragPreview) {
-      this.props.connectDragPreview(getEmptyImage(), { captureDraggingState: true });
-    }
-  }
-
   render() {
-    const { element, connectDragSource } = this.props;
-    const actualX = element.x - this.props.featuresConfig.lines.header.width / 2;
+    const { element, registerRef, featuresConfig } = this.props;
+    const actualX = element.x - featuresConfig.lines.header.width / 2;
 
     const style = {
       ...styles.root,
-      width: this.props.featuresConfig.lines.header.width,
+      width: featuresConfig.lines.header.width,
       transition: '0.1s ease-in-out',
       transform: `translateX(${actualX}px)`,
     };
 
-    return connectDragSource(
-      <div style={style}>
-        {this.props.featuresConfig.lines.header.renderer(element.line)}
+    return (
+      <div style={style} ref={registerRef}>
+        {featuresConfig.lines.header.renderer(element.line)}
       </div>
     )
   }
 }
 
-export default LineHeaderElement;
+export default DragSource<LineHeaderElementProps>(itemTypes.Line, lineHeaderElementSource, (monitor, registerRef) => ({ registerRef }))(LineHeaderElement);

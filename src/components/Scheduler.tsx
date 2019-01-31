@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Provider } from 'intereactable';
 const merge = require('deepmerge');
 
 import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig } from '../../index.d';
@@ -31,13 +32,15 @@ class Scheduler extends React.PureComponent<SchedulerProps> {
     features = merge(featuresDefaults, features);
 
     return (
-      <SchedulerPanel
-        assignments={assignments}
-        resources={resources}
-        events={events}
-        assignmentRenderer={assignmentRenderer}
-        axes={axes}
-        features={features} />
+      <Provider>
+        <SchedulerPanel
+          assignments={assignments}
+          resources={resources}
+          events={events}
+          assignmentRenderer={assignmentRenderer}
+          axes={axes}
+          features={features} />
+      </Provider>
     )
   }
 }

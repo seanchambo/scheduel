@@ -1,7 +1,5 @@
 import * as React from 'react';
 import Scheduler from 'scheduel';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 
 import { Assignment, Resource, Event, ResourceRowLayout, Line } from '../../index.d';
 
@@ -10,7 +8,6 @@ import { generateData } from './generateData';
 const start = new Date();
 const end = new Date(new Date().setMonth(start.getMonth() + 2));
 
-@DragDropContext(HTML5Backend)
 class App extends React.Component {
   state = {
     layout: 'stack',

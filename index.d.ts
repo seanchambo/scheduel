@@ -8,25 +8,27 @@ export interface TimeDuration {
   unit: TimeUnit;
 }
 
+export declare type Data = { [key: string]: any };
+
 export declare interface Event {
   id: number | string;
   startTime: Date;
   endTime: Date;
   draggable?: boolean;
-  data?: { [key: string]: any };
+  data?: Data;
 }
 
 export declare interface Assignment {
   id: number | string;
   resourceId: number | string;
   eventId: number | string;
-  data?: { [key: string]: any };
+  data?: Data;
 }
 
 export declare interface Resource {
   id: number | string;
   name: string;
-  data?: { [key: string]: any };
+  data?: Data;
 }
 
 export declare interface Tick {
@@ -218,7 +220,7 @@ export declare interface ResourceZone {
   resourceId: number | string;
   startTime: Date;
   endTime: Date;
-  data?: { [key: string]: any };
+  data?: Data;
 }
 
 export declare type ResourceZoneRenderer = (zone: ResourceZone, resource: Resource) => React.ReactNode;
@@ -232,7 +234,7 @@ export declare interface Line {
   id: number | string;
   date: Date;
   draggable?: boolean;
-  data?: { [key: string]: any };
+  data?: Data;
 }
 
 export declare interface LineElement {

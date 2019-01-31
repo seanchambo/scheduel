@@ -6,6 +6,7 @@
     "declaration": true,
     "experimentalDecorators": true,
     "types": [
+      "react",
       "node",
       "jest",
       "react-dom",
