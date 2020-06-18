@@ -1,5 +1,10 @@
 export as namespace Scheduel;
 
+export interface XYCoordinate {
+  x: number;
+  y: number;
+}
+
 export type TimeUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 export type ResourceRowLayout = 'stack' | 'pack' | 'overlap';
 
@@ -47,8 +52,8 @@ export declare interface Ticks {
 }
 
 export declare interface TimeResolution {
-  increment: number;
-  unit: 'millisecond' | 'second' | 'minute' | 'hour' | 'day';
+  increment: 1 | 5 | 10 | 15 | 30;
+  unit: 'minute';
 }
 
 export declare interface AxesConfig {

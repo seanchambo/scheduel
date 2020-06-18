@@ -1,9 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Grid } from 'react-virtualized';
-import { DropTarget } from 'intereactable';
-import { DropTargetSpecification } from 'intereactable/dist/DropTarget';
-import { RegisterRef } from 'intereactable/dist/DragSource';
+import { DropTargetViewModel } from 'long-drop';
+import { DropTargetViewModelSpecification, RegisterRef } from 'long-drop/dist/DropTargetViewModel';
 
 import { Resource, Ticks, DragContext, DragDropConfig, AxesConfig } from '../../index.d';
 
@@ -34,9 +33,9 @@ const styles = {
   },
 };
 
-const resourceTarget: DropTargetSpecification<ResourceTimelineProps> = {
+const resourceTarget: DropTargetViewModelSpecification<ResourceTimelineProps> = {
   drop(props, monitor) {
-    const finish = monitor.getClientSourceOffset();
+    const finish = monitor.getSourceClientOffset();
 
     const panel: Element = ReactDOM.findDOMNode(props.grid) as Element;
     const xFromPanel = finish.x - panel.getBoundingClientRect().left;
@@ -74,7 +73,12 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   }
 }
 
-export default DropTarget<ResourceTimelineProps>(itemTypes.Assignment, resourceTarget, (assignmentMonitor, registerRef) => ({
-  isAssignmentOver: assignmentMonitor.isOver(),
-  registerRef,
-}))(ResourceTimeline);
+export default DropTargetViewModel<ResourceTimelineProps>(
+  (props) => `ResourceTimeline(${props.resource.id})`,
+  itemTypes.Assignment,
+  resourceTarget,
+  (id, model, registerRef) => ({
+    isAssignmentOver: model.isOverTarget(id),
+    registerRef,
+  })
+)(ResourceTimeline);

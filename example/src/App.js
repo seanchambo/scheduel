@@ -1,24 +1,33 @@
 import * as React from 'react';
-import Scheduler from 'scheduel';
 
-import { Assignment, Resource, Event, ResourceRowLayout, Line } from '../../index.d';
-
+import Scheduler from '../../dist/index';
 import { generateData } from './generateData';
 
 const start = new Date();
 const end = new Date(new Date().setMonth(start.getMonth() + 2));
 
 class App extends React.Component {
-  state = {
-    layout: 'stack',
-    ...generateData(start, end, 1000, 10, 2, 2),
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      layout: 'stack',
+      ...generateData(start, end, 1000, 10, 2, 2),
+    }
+
+    this.updateEvent = this.updateEvent.bind(this);
+    this.updateLine = this.updateLine.bind(this);
+    this.setLayout = this.setLayout.bind(this);
+    this.regenerate = this.regenerate.bind(this);
   }
 
-  updateEvent = (assignment: Assignment, resource: Resource, event: Event, date: Date) => {
-    const newAssignment: Assignment = { id: assignment.id, eventId: event.id, resourceId: resource.id };
+  updateEvent(assignment, resource, event, date) {
+    console.log(date);
+    const newAssignment = { id: assignment.id, eventId: event.id, resourceId: resource.id };
     const eventDuration = event.endTime.getTime() - event.startTime.getTime();
     const eventEnd = new Date(date.getTime() + eventDuration);
-    const newEvent: Event = { ...event, startTime: new Date(date), endTime: new Date(eventEnd) };
+    const newEvent = { ...event, startTime: new Date(date), endTime: new Date(eventEnd) };
+    console.log(newEvent);
 
     const assignmentIndex = this.state.assignments.indexOf(assignment);
     const eventIndex = this.state.events.indexOf(event);
@@ -32,27 +41,26 @@ class App extends React.Component {
     this.setState({ assignments: newAssignments, events: newEvents });
   }
 
-  updateLine = (line: Line, date: Date) => {
-    console.log(date);
+  updateLine(line, date) {
     let lines = this.state.lines.filter(l => l.id !== line.id);
     lines = [...lines, { ...line, date }];
     this.setState({ lines });
   }
 
-  setLayout = (layout: ResourceRowLayout) => {
+  setLayout(layout) {
     return () => {
       this.setState({ layout });
     }
   }
 
-  regenerate = () => {
+  regenerate() {
     this.setState({ ...generateData(start, end, 1000, 10, 2, 2) });
   }
 
-  public render() {
+  render() {
     return (
       <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ height: 42, padding: 8, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        <div style={{ flex: '0 0 auto', height: 42, padding: 8, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
           <div style={{ width: 75, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
             <button onClick={this.regenerate}>Regenerate</button>
           </div>
@@ -85,16 +93,20 @@ class App extends React.Component {
             axes={{
               resource: {
                 row: {
-                  layout: this.state.layout as ResourceRowLayout,
+                  layout: this.state.layout,
                   padding: 5,
                 },
               },
               time: {
                 range: {
                   duration: {
-                    increment: 2,
-                    unit: 'month',
+                    increment: 1,
+                    unit: 'week',
                   }
+                },
+                resolution: {
+                  unit: 'minute',
+                  increment: 5,
                 }
               }
             }}

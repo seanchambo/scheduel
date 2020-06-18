@@ -9,7 +9,7 @@ import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
 import DragContextProvider from './DragContextProvider';
 import TimeHeader from './TimeHeader';
-import DragLayer from './DragLayer';
+import DragPreview from './DragPreview';
 import AssignmentGrid from './AssignmentGrid';
 import LinesStream from './LinesStream';
 import LineHeader from './LineHeader';
@@ -80,7 +80,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                     {({ onScroll, scrollLeft, scrollTop }) => {
                       return (
                         <div style={styles.root}>
-                          <DragLayer
+                          <DragPreview
                             dragDropConfig={features.dragDrop}
                             resourceElements={resourceElements}
                             assignmentGrid={this.assignmentGrid}

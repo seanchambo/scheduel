@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { DragSource } from 'intereactable';
-import { RegisterRef, DragSourceSpecification } from 'intereactable/dist/DragSource';
+import { DragSourceViewModel } from 'long-drop';
+import { RegisterRef, DragSourceViewModelSpecification } from 'long-drop/dist/DragSourceViewModel';
 
 import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer } from '../../index.d';
 import itemTypes from '../utils/itemTypes';
@@ -24,14 +24,12 @@ const styles = {
   }
 }
 
-const assignmentSource: DragSourceSpecification<AssignmentElementProps> = {
+const assignmentSource: DragSourceViewModelSpecification<AssignmentElementProps> = {
   canDrag(props) {
     return props.dragDropConfig.internal.enabled && props.element.event.draggable !== false;
   },
-  beginDrag(props) {
+  beginDrag(props, model) {
     props.dragContext.start(props.element.assignment, props.element.event, props.resource);
-
-    return { id: props.element.assignment.id }
   },
   endDrag(props, monitor) {
     if (monitor.didDrop()) {
@@ -41,9 +39,6 @@ const assignmentSource: DragSourceSpecification<AssignmentElementProps> = {
       props.dragContext.end(false, null)
     }
   },
-  isDragging(props, monitor) {
-    return monitor.getItem().id === props.element.assignment.id;
-  }
 }
 
 class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
@@ -66,4 +61,9 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
   }
 }
 
-export default DragSource<AssignmentElementProps>(itemTypes.Assignment, assignmentSource, (monitor, registerRef) => ({ registerRef }))(AssignmentElement);
+export default DragSourceViewModel<AssignmentElementProps>(
+  (props) => `Assignment(${props.element.assignment.id.toString()})`,
+  itemTypes.Assignment,
+  assignmentSource,
+  (id, model, registerRef) => ({ registerRef }),
+)(AssignmentElement);

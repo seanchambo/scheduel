@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { DropTarget } from 'intereactable';
-import { DropTargetSpecification } from 'intereactable/dist/DropTarget';
-import { RegisterRef } from 'intereactable/dist/DragSource';
+import { DropTargetViewModel } from 'long-drop';
+import { DropTargetViewModelSpecification, RegisterRef } from 'long-drop/dist/DropTargetViewModel';
 
 import { Ticks, AxesConfig, LineElement, FeaturesConfig } from '../../index.d';
 
@@ -38,9 +37,9 @@ const styles = {
   },
 };
 
-const lineHeaderTarget: DropTargetSpecification<LineHeaderProps> = {
+const lineHeaderTarget: DropTargetViewModelSpecification<LineHeaderProps> = {
   drop(props, monitor) {
-    const finish = monitor.getClientSourceOffset();
+    const finish = monitor.getSourceClientOffset();
 
     const panel: Element = ReactDOM.findDOMNode(props.assignmentGrid.current.grid.current) as Element;
     const xFromPanel = finish.x + (props.featuresConfig.lines.header.width / 2) - panel.getBoundingClientRect().left;
@@ -82,4 +81,9 @@ class LineHeader extends React.Component<LineHeaderProps> {
   }
 }
 
-export default DropTarget<LineHeaderProps>(itemTypes.Line, lineHeaderTarget, (monitor, registerRef) => ({ registerRef }))(LineHeader);
+export default DropTargetViewModel<LineHeaderProps>(
+  () => `LineHeader`,
+  itemTypes.Line,
+  lineHeaderTarget,
+  (id, model, registerRef) => ({ registerRef })
+)(LineHeader);

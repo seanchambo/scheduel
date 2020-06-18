@@ -140,7 +140,7 @@ export const axesDefaults: AxesConfig = {
         },
         tickRenderer: (tick: Tick) => <div style={styles.ticks.major} />,
         increment: 1,
-        unit: 'week',
+        unit: 'day',
       },
       minor: {
         rowHeight: 40,
@@ -155,20 +155,20 @@ export const axesDefaults: AxesConfig = {
         },
         tickRenderer: (tick: Tick) => <div style={styles.ticks.minor} />,
         increment: 1,
-        unit: 'day',
+        unit: 'hour',
         width: 40,
       },
     },
     range: {
       from: new Date(),
       duration: {
-        unit: 'month',
+        unit: 'week',
         increment: 1,
       },
     },
     resolution: {
       unit: 'minute',
-      increment: 5,
+      increment: 30,
     },
   },
   resource: {

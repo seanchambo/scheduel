@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Provider } from 'intereactable';
+import { Provider } from 'long-drop';
 const merge = require('deepmerge');
 
 import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig } from '../../index.d';

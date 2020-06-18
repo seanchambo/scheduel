@@ -1,17 +1,25 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { DragLayer as DragLayerWrapper } from 'intereactable'
-import { XYCoordinate } from 'intereactable/dist/Monitor';
+import { DragPreviewViewModel } from 'long-drop'
 
-import { DragContext, AxesConfig, Ticks, DragDropConfig, ResourceElement, InternalDragDropPreviewContext, ExternalDragDropPreviewContext, FeaturesConfig } from '../../index.d';
+import {
+  DragContext,
+  AxesConfig,
+  Ticks,
+  DragDropConfig,
+  ResourceElement,
+  InternalDragDropPreviewContext,
+  ExternalDragDropPreviewContext,
+  FeaturesConfig,
+  XYCoordinate,
+} from '../../index';
 
 import { getDateFromPosition, getCoordinatesForTimeSpan, getPositionFromDate } from '../utils/dom';
 import itemTypes from '../utils/itemTypes';
 import { roundTo } from '../utils/date';
 import AssignmentGrid from './AssignmentGrid';
 
-interface DragLayerProps {
-  item?: any;
+interface DragPreviewProps {
   itemType?: string;
   domOffset?: XYCoordinate;
   pointerOffset?: XYCoordinate;
@@ -37,7 +45,7 @@ const layerStyles: React.CSSProperties = {
   height: '100%',
 }
 
-class DragLayer extends React.PureComponent<DragLayerProps> {
+class DragPreview extends React.PureComponent<DragPreviewProps> {
   render() {
     const {
       dragDropConfig,
@@ -53,7 +61,6 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       pointerOffset,
       itemType,
       featuresConfig,
-      item,
     } = this.props
 
 
@@ -68,8 +75,6 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
     }
 
     let { x, y } = domOffset
-    console.log(x, y);
-
     const panel: Element = ReactDOM.findDOMNode(assignmentGrid.current.grid.current) as Element;
     const xFromPanel = x - panel.getBoundingClientRect().left;
     const xFromSchedulerStart = xFromPanel + panel.scrollLeft;
@@ -151,12 +156,13 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
       content = dragDropConfig.external.previewRenderer(context);
     }
 
-    if (itemType === itemTypes.Line) {
-      const line = featuresConfig.lines.lines.find(line => line.id === item.id);
-      const style = { transform: `translate(${x}px, ${item.y}px)` }
+    // TODO: Fix Me!
+    // if (itemType === itemTypes.Line) {
+    //   const line = featuresConfig.lines.lines.find(line => line.id === item.id);
+    //   const style = { transform: `translate(${x}px, 0px)` }
 
-      content = <div style={style}>{featuresConfig.lines.header.renderer(line)}</div>
-    }
+    //   content = <div style={style}>{featuresConfig.lines.header.renderer(line)}</div>
+    // }
 
     return (
       <div style={layerStyles}>
@@ -166,10 +172,9 @@ class DragLayer extends React.PureComponent<DragLayerProps> {
   }
 }
 
-export default DragLayerWrapper<DragLayerProps>((monitor) => ({
-  domOffset: monitor.getClientSourceOffset(),
-  pointerOffset: monitor.getClientOffset(),
-  isDragging: monitor.isDragging(),
-  itemType: monitor.getItemType(),
-  item: monitor.getItem(),
-}))(DragLayer);
+export default DragPreviewViewModel<DragPreviewProps>((model) => ({
+  domOffset: model.getSourceClientOffset(),
+  pointerOffset: model.getClientOffset(),
+  isDragging: model.isDragging(),
+  itemType: model.getItemType(),
+}))(DragPreview);

@@ -1,8 +1,7 @@
 import * as React from 'react';
 // import * as ReactDOM from 'react-dom';
-import { DragSource } from 'intereactable';
-import { DragSourceSpecification } from 'intereactable/dist/DragSource';
-import { RegisterRef } from 'intereactable/dist/DropTarget';
+import { DragSourceViewModel } from 'long-drop';
+import { DragSourceViewModelSpecification, RegisterRef } from 'long-drop/dist/DragSourceViewModel';
 
 import { LineElement, FeaturesConfig, Ticks } from '../../index.d';
 
@@ -23,18 +22,12 @@ const styles = {
   }
 }
 
-const lineHeaderElementSource: DragSourceSpecification<LineHeaderElementProps> = {
+const lineHeaderElementSource: DragSourceViewModelSpecification<LineHeaderElementProps> = {
   canDrag(props, monitor) {
     return props.element.line.draggable !== false;
   },
   beginDrag(props, monitor) {
     props.featuresConfig.lines.listeners.drag(props.element.line);
-
-    // TODO: Fix Me!
-
-    // const domElement: Element = ReactDOM.findDOMNode(component) as Element;
-
-    return { id: props.element.line.id, y: 0 }
   },
   endDrag(props, monitor) {
     if (monitor.didDrop()) {
@@ -42,9 +35,6 @@ const lineHeaderElementSource: DragSourceSpecification<LineHeaderElementProps> =
       props.featuresConfig.lines.listeners.drop(props.element.line, date);
     }
   },
-  isDragging(props, monitor) {
-    return monitor.getItem().id === props.element.line.id;
-  }
 }
 
 class LineHeaderElement extends React.PureComponent<LineHeaderElementProps> {
@@ -67,4 +57,9 @@ class LineHeaderElement extends React.PureComponent<LineHeaderElementProps> {
   }
 }
 
-export default DragSource<LineHeaderElementProps>(itemTypes.Line, lineHeaderElementSource, (monitor, registerRef) => ({ registerRef }))(LineHeaderElement);
+export default DragSourceViewModel<LineHeaderElementProps>(
+  (props) => `Line(${props.element.line.id.toString()})`,
+  itemTypes.Line,
+  lineHeaderElementSource,
+  (id, model, registerRef) => ({ registerRef })
+)(LineHeaderElement);

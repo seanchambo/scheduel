@@ -79,19 +79,9 @@ export const addUnit = (date: Date, quantity: number, unit: TimeUnit): Date => f
 
 export const getInMilliseconds = (quantity: number, unit: TimeUnit): number => fnMap[unit].toMs(quantity);
 
-export const roundTo = (date: Date, increment: number, unit: TimeUnit) => {
-  const roundedIncrementMs = getInMilliseconds(increment, unit);
-  const halfIncrement = roundedIncrementMs / 2;
-  let roundedStart = date.getTime();
-  const mod = roundedStart % roundedIncrementMs;
-
-  if (mod <= halfIncrement) {
-    roundedStart -= mod;
-  } else {
-    roundedStart += roundedIncrementMs - mod;
-  }
-
-  return new Date(roundedStart + getTimezoneOffset(new Date(roundedStart)));
+export const roundTo = (date: Date, increment: number, unit: 'minute') => {
+  const coeff = getInMilliseconds(increment, unit);
+  return new Date(Math.ceil(date.getTime() / coeff) * coeff);
 }
 
 export const adjustToIncrement = (start: Date, end: Date, increment: number, unit: TimeUnit): Date => {
@@ -100,8 +90,4 @@ export const adjustToIncrement = (start: Date, end: Date, increment: number, uni
   }
 
   return new Date(start);
-}
-
-export const getTimezoneOffset = (date: Date = new Date()): number => {
-  return date.getTimezoneOffset() * 60 * 1000;
 }
