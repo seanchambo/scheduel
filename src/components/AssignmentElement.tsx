@@ -2,8 +2,9 @@ import * as React from 'react';
 import { DragSourceViewModel } from 'long-drop';
 import { RegisterRef, DragSourceViewModelSpecification } from 'long-drop/dist/DragSourceViewModel';
 
-import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer } from '../../index.d';
+import { AssignmentElement as AssignmentElementInterface, AxesConfig, DragContext, Resource, Ticks, DragDropConfig, AssignmentRenderer, ResizeRenderer } from '../../index.d';
 import itemTypes from '../utils/itemTypes';
+import ResizeHandler from './ResizeHandler';
 
 interface AssignmentElementProps {
   element: AssignmentElementInterface;
@@ -13,6 +14,7 @@ interface AssignmentElementProps {
   dragDropConfig: DragDropConfig;
   resource: Resource;
   assignmentRenderer: AssignmentRenderer;
+  resizeRenderer: ResizeRenderer;
   registerRef?: RegisterRef,
 }
 
@@ -53,9 +55,14 @@ class AssignmentElement extends React.PureComponent<AssignmentElementProps> {
       transform: `translate(${this.props.element.startX}px, ${this.props.element.top}px)`,
     };
 
+    const ResizeHandlers = <>
+      <ResizeHandler side="left" element={element} resource={resource} renderer={this.props.resizeRenderer} />
+      <ResizeHandler side="right" element={element} resource={resource} renderer={this.props.resizeRenderer} />
+    </>
+
     return (
       <div style={style} ref={registerRef}>
-        {this.props.assignmentRenderer(element.assignment, element.event, resource)}
+        {this.props.assignmentRenderer(element.assignment, element.event, resource, null)}
       </div>
     )
   }

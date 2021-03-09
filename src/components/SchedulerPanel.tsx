@@ -3,7 +3,7 @@ import { ScrollSync } from 'react-virtualized/dist/commonjs/ScrollSync';
 import { AutoSizer } from 'react-virtualized';
 const scrollbarSize = require('dom-helpers/util/scrollbarSize');
 
-import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig, ExternalDragDropConfig } from '../../index.d';
+import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig, ExternalDragDropConfig, ResizeRenderer } from '../../index.d';
 
 import ResourceStream from './ResourceStream';
 import ViewDataProvider from './ViewDataProvider';
@@ -20,6 +20,7 @@ interface SchedulerPanelProps {
   events: Event[];
   axes: AxesConfig;
   assignmentRenderer: AssignmentRenderer;
+  resizeRenderer: ResizeRenderer;
   features: FeaturesConfig;
 }
 
@@ -64,7 +65,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
   }
 
   render() {
-    const { resources, events, assignments, axes, features, assignmentRenderer } = this.props;
+    const { resources, events, assignments, axes, features, assignmentRenderer, resizeRenderer } = this.props;
 
     return (
       <ViewDataProvider ref={this.viewDataProvider} featuresConfig={features} axesConfig={axes} resources={resources} events={events} assignments={assignments}>
@@ -153,6 +154,7 @@ class SchedulerPanel extends React.PureComponent<SchedulerPanelProps> {
                                         resources={resources}
                                         onScroll={onScroll}
                                         assignmentRenderer={assignmentRenderer}
+                                        resizeRenderer={resizeRenderer}
                                         dragContext={dragContext}
                                         dragDropConfig={features.dragDrop}
                                         resourceAssignments={resourceAssignments} />

@@ -8,7 +8,6 @@ import visualizer from 'rollup-plugin-visualizer';
 const externals = [
   '^react$',
   '^react-dom$',
-  '^react-dnd$',
 ]
 
 const externalRegex = new RegExp(externals.join('|'));
@@ -20,12 +19,11 @@ export default {
   output: {
     file: 'dist/index.js',
     format: 'umd',
-    name: 'Schedeul',
+    name: 'Scheduel',
     exports: 'named',
     globals: {
       react: 'React',
       'react-dom': 'ReactDOM',
-      'react-dnd': 'ReactDnD',
     },
   },
   external,
@@ -33,7 +31,7 @@ export default {
     builtins(),
     resolve(),
     commonjs({
-      include: ['node_modules/**', 'lib/**/*.js']
+      include: ['node_modules/**', 'lib/**/*.js'],
     }),
     visualizer(),
     babel({

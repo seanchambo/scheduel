@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Provider } from 'long-drop';
+import Provider from 'long-drop';
 const merge = require('deepmerge');
 
-import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig } from '../../index.d';
+import { Assignment, Resource, Event, AssignmentRenderer, FeaturesConfig, AxesConfig, ResizeRenderer } from '../../index.d';
 
-import { assignmentRenderer, axesDefaults, featuresDefaults } from '../defaults';
+import { assignmentRenderer, resizeRenderer, axesDefaults, featuresDefaults } from '../defaults';
 import SchedulerPanel from './SchedulerPanel';
 
 interface SchedulerProps {
@@ -13,6 +13,7 @@ interface SchedulerProps {
   events?: Event[];
   axes?: AxesConfig;
   assignmentRenderer?: AssignmentRenderer;
+  resizeRenderer?: ResizeRenderer;
   features?: FeaturesConfig;
 }
 
@@ -22,12 +23,13 @@ class Scheduler extends React.PureComponent<SchedulerProps> {
     events: [],
     resources: [],
     assignmentRenderer,
+    resizeRenderer,
     axes: {},
     features: {},
   };
 
   public render() {
-    let { axes, features, assignments, resources, events, assignmentRenderer } = this.props;
+    let { axes, features, assignments, resources, events, assignmentRenderer, resizeRenderer } = this.props;
     axes = merge(axesDefaults, axes);
     features = merge(featuresDefaults, features);
 
@@ -38,6 +40,7 @@ class Scheduler extends React.PureComponent<SchedulerProps> {
           resources={resources}
           events={events}
           assignmentRenderer={assignmentRenderer}
+          resizeRenderer={resizeRenderer}
           axes={axes}
           features={features} />
       </Provider>

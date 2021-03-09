@@ -73,12 +73,23 @@ class ResourceTimeline extends React.PureComponent<ResourceTimelineProps> {
   }
 }
 
-export default DropTargetViewModel<ResourceTimelineProps>(
-  (props) => `ResourceTimeline(${props.resource.id})`,
+const DragWrappedResourceTimeline = DropTargetViewModel<ResourceTimelineProps>(
+  (props) => `ResourceTimelineDrag(${props.resource.id})`,
   itemTypes.Assignment,
   resourceTarget,
   (id, model, registerRef) => ({
     isAssignmentOver: model.isOverTarget(id),
     registerRef,
   })
-)(ResourceTimeline);
+)(ResourceTimeline)
+
+// const ResizeWrappedResourceTimeline = DropTargetViewModel<ResourceTimelineProps>(
+//   (props) => `ResourceTimelineResize(${props.resource.id})`,
+//   itemTypes.Resize,
+//   resourceTarget,
+//   (id, model, registerRef) => ({
+//     registerRef,
+//   })
+// )(DragWrappedResourceTimeline)
+
+export default DragWrappedResourceTimeline;

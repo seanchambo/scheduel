@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as format from 'date-fns/format'
 
-import { AxesConfig, AssignmentRenderer, Assignment, Event, Resource, FeaturesConfig, Tick } from "../index.d";
+import { AxesConfig, AssignmentRenderer, Assignment, Event, Resource, FeaturesConfig, Tick, ResizeRenderer } from "../index.d";
 
 const colours = {
   border: '#BDBDBD',
@@ -198,14 +198,35 @@ export const axesDefaults: AxesConfig = {
   }
 }
 
-export const assignmentRenderer: AssignmentRenderer = (assignment: Assignment, event: Event, resource: Resource) => {
+export const assignmentRenderer: AssignmentRenderer = (assignment, event, resource, ResizeHandlers) => {
   const style = {
     ...styles.events.root,
     backgroundColor: event.data && event.data.colour || styles.events.root.background,
     borderColor: event.data && event.data.colour || styles.events.root.background,
   };
 
-  return (<div style={style}><div style={styles.events.inner}>{event.data && event.data.name || ''}</div></div >);
+  return (
+    <div style={style}>
+      <div style={styles.events.inner}>
+        {event.data && event.data.name || ''}
+        {ResizeHandlers}
+      </div>
+    </div >);
+}
+
+export const resizeRenderer: ResizeRenderer = (assignment, event, resource, side) => {
+  const style = {
+    width: 5,
+    borderLeft: '1px solid #eee',
+    borderRight: '1px solid #eee',
+    height: '60%',
+    top: '20%',
+    position: 'absolute' as 'absolute',
+  }
+
+  return (
+    <div style={style} />
+  )
 }
 
 export const featuresDefaults: FeaturesConfig = {

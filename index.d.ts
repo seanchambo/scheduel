@@ -130,7 +130,9 @@ export declare interface MinorTickConfig extends TickConfig {
   width: number;
 }
 
-export declare type AssignmentRenderer = (assignment: Assignment, event: Event, resource: Resource) => React.ReactNode;
+export declare type ResizeRenderer = (assignment: Assignment, event: Event, resource: Resource, side: 'left' | 'right') => React.ReactNode;
+
+export declare type AssignmentRenderer = (assignment: Assignment, event: Event, resource: Resource, resizeHandlers: React.ReactElement<any>) => React.ReactNode;
 
 export declare interface ResourceColumnContext {
   isOver: boolean;

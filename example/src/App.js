@@ -22,12 +22,15 @@ class App extends React.Component {
   }
 
   updateEvent(assignment, resource, event, date) {
-    console.log(date);
+    console.log('1', assignment, event, resource);
     const newAssignment = { id: assignment.id, eventId: event.id, resourceId: resource.id };
+    console.log('2');
     const eventDuration = event.endTime.getTime() - event.startTime.getTime();
+    console.log('3');
     const eventEnd = new Date(date.getTime() + eventDuration);
+    console.log('4');
     const newEvent = { ...event, startTime: new Date(date), endTime: new Date(eventEnd) };
-    console.log(newEvent);
+    console.log('5');
 
     const assignmentIndex = this.state.assignments.indexOf(assignment);
     const eventIndex = this.state.events.indexOf(event);

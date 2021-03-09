@@ -156,7 +156,6 @@ class DragPreview extends React.PureComponent<DragPreviewProps> {
       content = dragDropConfig.external.previewRenderer(context);
     }
 
-    // TODO: Fix Me!
     // if (itemType === itemTypes.Line) {
     //   const line = featuresConfig.lines.lines.find(line => line.id === item.id);
     //   const style = { transform: `translate(${x}px, 0px)` }

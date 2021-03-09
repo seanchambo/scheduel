@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Grid, OnScrollCallback } from 'react-virtualized';
 
-import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource, ResourceZoneMap, FeaturesConfig, LineElement } from '../../index.d';
+import { Ticks, ResourceElement, AxesConfig, ResourceAssignmentMap, DragDropConfig, DragContext, AssignmentRenderer, Resource, ResourceZoneMap, FeaturesConfig, LineElement, ResizeRenderer } from '../../index.d';
 
 import ResourceTimeline from './ResourceTimeline';
 import AssignmentElement from './AssignmentElement';
@@ -18,6 +18,7 @@ interface AssignmentGridProps {
   dragDropConfig: DragDropConfig;
   dragContext: DragContext;
   assignmentRenderer: AssignmentRenderer;
+  resizeRenderer: ResizeRenderer;
   feautresConfig: FeaturesConfig;
   onScroll: OnScrollCallback;
   width: number;
@@ -58,6 +59,7 @@ class AssignmentGrid extends React.Component<AssignmentGridProps> {
         ticks={this.props.ticks}
         resource={resource}
         assignmentRenderer={this.props.assignmentRenderer}
+        resizeRenderer={this.props.resizeRenderer}
         dragDropConfig={this.props.dragDropConfig}
         dragContext={this.props.dragContext}
         axesConfig={this.props.axesConfig} />
